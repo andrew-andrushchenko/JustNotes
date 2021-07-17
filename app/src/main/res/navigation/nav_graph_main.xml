@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_main"
+    app:startDestination="@id/notesFragment">
+
+    <fragment
+        android:id="@+id/notesFragment"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.note.NotesFragment"
+        android:label="fragment_notes"
+        tools:layout="@layout/fragment_notes" />
+    <fragment
+        android:id="@+id/tasksFragment"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.task.TasksFragment"
+        android:label="Tasks"
+        tools:layout="@layout/fragment_tasks" >
+        <action
+            android:id="@+id/action_tasksFragment_to_addEditTaskDialog"
+            app:destination="@id/addEditTaskDialog" />
+        <argument
+            android:name="todoList"
+            app:argType="ua.andrii.andrushchenko.justnotes.domain.TodoList" />
+    </fragment>
+    <dialog
+        android:id="@+id/addEditTaskDialog"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.task.addedittask.AddEditTaskDialog"
+        android:label="fragment_add_edit_task"
+        tools:layout="@layout/bottom_sheet_add_edit_task" >
+        <argument
+            android:name="task"
+            app:argType="ua.andrii.andrushchenko.justnotes.domain.Task"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="todoListId"
+            app:argType="integer" />
+    </dialog>
+    <dialog
+        android:id="@+id/deleteAllCompletedDialogFragment"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.task.deleteallcompleted.DeleteAllCompletedDialogFragment"
+        android:label="DeleteAllCompletedDialogFragment" >
+        <argument
+            android:name="tListId"
+            app:argType="integer" />
+    </dialog><action android:id="@+id/action_global_deleteAllCompletedDialogFragment" app:destination="@id/deleteAllCompletedDialogFragment"/>
+    <fragment
+        android:id="@+id/todoListsFragment"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.todolist.TodoListsFragment"
+        android:label="fragment_todo_lists"
+        tools:layout="@layout/fragment_todo_lists" >
+        <action
+            android:id="@+id/action_todoListsFragment_to_tasksFragment"
+            app:destination="@id/tasksFragment" />
+        <action
+            android:id="@+id/action_todoListsFragment_to_addTodoListDialog"
+            app:destination="@id/addTodoListDialog" />
+    </fragment>
+    <dialog
+        android:id="@+id/addTodoListDialog"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.todolist.addtodolist.AddTodoListDialog"
+        android:label="bottom_sheet_add_todo_list"
+        tools:layout="@layout/bottom_sheet_add_todo_list" />
+</navigation>

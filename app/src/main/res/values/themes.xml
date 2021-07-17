@@ -1,0 +1,73 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.JustNotes" parent="Base.Theme">
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+    </style>
+
+    <!-- Base custom theme which will be shared between both light and dark theme variants -->
+    <style name="Base.Theme" parent="Base.MaterialThemeBuilder">
+        <!-- Material color attributes -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorSecondaryVariant">@color/color_secondary_variant</item>
+
+        <item name="android:colorBackground">@color/color_background</item>
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorError">@color/color_error</item>
+
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorOnSecondary">@color/color_on_secondary</item>
+        <item name="colorOnBackground">@color/color_on_background</item>
+        <item name="colorOnSurface">@color/color_on_surface</item>
+        <item name="colorOnError">@color/color_on_error</item>
+        <item name="colorControlNormal">@color/color_on_surface</item>
+
+        <!-- Material type attributes -->
+        <item name="android:textColor">@color/sl_text_color</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.JustNotes.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.JustNotes.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.JustNotes.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.JustNotes.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.JustNotes.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.JustNotes.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.JustNotes.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.JustNotes.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.JustNotes.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.JustNotes.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.JustNotes.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.JustNotes.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.JustNotes.Overline</item>
+
+        <!-- Material shape attributes -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.JustNotes.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.JustNotes.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.JustNotes.LargeComponent</item>
+
+        <!-- Component styles -->
+        <item name="dialogTheme">@style/ThemeOverlay.Theme.AlertDialog</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Theme.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Theme.MaterialAlertDialog</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Theme.BottomSheetDialog</item>
+        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.Surface</item>
+        <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout</item>
+    </style>
+
+    <style name="Base.MaterialThemeBuilder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">?colorSurface</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowBackground">?android:colorBackground</item>
+
+        <item name="android:windowContentTransitions">true</item>
+
+        <!-- Remap legacy AppCompat attributes to MaterialComponent attributes -->
+        <item name="colorPrimaryDark">?colorPrimaryVariant</item>
+        <item name="colorAccent">?colorSecondary</item>
+    </style>
+
+    <style name="JustNotes.ToolbarOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
+    <style name="JustNotes.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+</resources>

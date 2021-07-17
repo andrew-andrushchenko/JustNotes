@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Just Notes</string>
+    <string name="notes">Notes</string>
+    <string name="tasks">Tasks</string>
+    <string name="todo_lists">Todo lists</string>
+    <string name="add_note">Add note</string>
+    <string name="add_task">Add task</string>
+    <string name="edit_task">Edit task</string>
+    <string name="task_name">Task name</string>
+    <string name="done">Done</string>
+    <string name="undo">Undo</string>
+    <string name="note_deleted">Note deleted</string>
+    <string name="todo_list_deleted">Todo list deleted</string>
+    <string name="task_deleted">Task deleted</string>
+    <string name="important_task">Important task</string>
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_date">Sort by date created</string>
+    <string name="hide_completed">Hide completed</string>
+    <string name="delete_completed">Delete all completed</string>
+    <string name="delete_all">Delete all</string>
+    <string name="add_todo_list">Add todo list</string>
+    <string name="todo_list_name">Todo list name</string>
+    <string name="todo_list_created">Todo list created</string>
+</resources>
