@@ -11,7 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +21,7 @@ import ua.andrii.andrushchenko.justnotes.domain.TodoList
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
+import ua.andrii.andrushchenko.justnotes.utils.setupStaggeredGridLayoutManager
 
 @AndroidEntryPoint
 class TodoListsFragment :
@@ -43,7 +43,10 @@ class TodoListsFragment :
         with(binding) {
             recyclerView.apply {
                 adapter = todoListsAdapter
-                layoutManager = LinearLayoutManager(requireContext())
+                //setupLinearLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
+                setupStaggeredGridLayoutManager(
+                    resources.getDimensionPixelSize(R.dimen.indent_8dp)
+                )
                 setHasFixedSize(true)
             }
 
@@ -77,6 +80,7 @@ class TodoListsFragment :
 
         viewModel.todoLists.observe(viewLifecycleOwner) {
             todoListsAdapter.submitList(it)
+            toggleTextViewEmpty(it.isEmpty())
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -114,6 +118,13 @@ class TodoListsFragment :
         }
 
         setHasOptionsMenu(true)
+    }
+
+    private fun toggleTextViewEmpty(isVisible: Boolean) {
+        with(binding) {
+            textViewEmpty.visibility = if (isVisible) View.VISIBLE else View.GONE
+            recyclerView.visibility = if (!isVisible) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -11,12 +11,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentTasksBinding
@@ -24,6 +23,8 @@ import ua.andrii.andrushchenko.justnotes.domain.Task
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
+import ua.andrii.andrushchenko.justnotes.utils.setupLinearLayoutManager
+import ua.andrii.andrushchenko.justnotes.utils.textChanges
 
 @AndroidEntryPoint
 class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::inflate) {
@@ -32,6 +33,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
 
     private lateinit var searchView: SearchView
 
+    @FlowPreview
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,7 +50,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
         with(binding) {
             recyclerView.apply {
                 adapter = tasksAdapter
-                layoutManager = LinearLayoutManager(requireContext())
+                setupLinearLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
                 setHasFixedSize(true)
             }
 
@@ -74,12 +76,14 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
                 viewModel.onAddNewTaskClicked()
             }
 
-            todoListTitleInputLayout.editText?.setText(viewModel.todoList?.title)
-
-            btnDone.setOnClickListener {
-                viewModel.onChangeTodoListTitleClicked(
-                    todoListTitleInputLayout.editText?.text.toString()
-                )
+            todoListTitleInputLayout.editText?.apply {
+                setText(viewModel.todoList?.title)
+                textChanges()
+                    .debounce(1000)
+                    .onEach { todoListTitle ->
+                        viewModel.onChangeTodoListTitleClicked(todoListTitle.toString())
+                    }
+                    .launchIn(viewLifecycleOwner.lifecycleScope)
             }
         }
 
@@ -90,6 +94,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
 
         viewModel.tasks.observe(viewLifecycleOwner) {
             tasksAdapter.submitList(it)
+            toggleTextViewEmpty(it.isEmpty())
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -108,18 +113,18 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
                     is TasksViewModel.TasksEvent.NavigateToAddTaskScreen -> {
                         val direction =
                             TasksFragmentDirections.actionTasksFragmentToAddEditTaskDialog(
-                                null,
-                                "New Task",
-                                viewModel.todoList!!.id
+                                task = null,
+                                title = getString(R.string.add_task),
+                                todoListId = viewModel.todoList!!.id
                             )
                         findNavController().navigate(direction)
                     }
                     is TasksViewModel.TasksEvent.NavigateToEditTaskScreen -> {
                         val direction =
                             TasksFragmentDirections.actionTasksFragmentToAddEditTaskDialog(
-                                event.task,
-                                "Edit Task",
-                                viewModel.todoList!!.id
+                                task = event.task,
+                                title = getString(R.string.edit_task),
+                                todoListId = viewModel.todoList!!.id
                             )
                         findNavController().navigate(direction)
                     }
@@ -128,7 +133,9 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
                     }
                     is TasksViewModel.TasksEvent.NavigateToDeleteAllCompletedInTodoListScreen -> {
                         val direction =
-                            TasksFragmentDirections.actionGlobalDeleteAllCompletedDialogFragment(viewModel.todoList!!.id)
+                            TasksFragmentDirections.actionTasksFragmentToDeleteAllCompletedDialogFragment(
+                                viewModel.todoList!!.id
+                            )
                         findNavController().navigate(direction)
                     }
                 }
@@ -136,6 +143,13 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
         }
 
         setHasOptionsMenu(true)
+    }
+
+    private fun toggleTextViewEmpty(isVisible: Boolean) {
+        with(binding) {
+            textViewEmpty.visibility = if (isVisible) View.VISIBLE else View.GONE
+            recyclerView.visibility = if (!isVisible) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -172,7 +186,7 @@ class TasksFragment : BaseFragment<FragmentTasksBinding>(FragmentTasksBinding::i
             }
             R.id.action_tasks_hide_completed_tasks -> {
                 item.isChecked = !item.isChecked
-                viewModel.onHideCompletedClick(item.isChecked)
+                viewModel.onHideCompletedClicked(item.isChecked)
                 true
             }
             R.id.action_tasks_delete_all_completed_tasks -> {

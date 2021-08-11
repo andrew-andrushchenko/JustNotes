@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="@dimen/indent_16dp"
+    app:strokeColor="@color/green_300"
+    app:strokeWidth="@dimen/indent_2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/indent_16dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txt_title"
+            style="@style/TextAppearance.JustNotes.Subtitle1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:padding="@dimen/indent_8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="I just call" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txt_reminder_time"
+            style="@style/TextAppearance.JustNotes.Subtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_bell"
+            android:gravity="center"
+            android:paddingTop="@dimen/indent_8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="15 Jul, 12:00"
+            tools:visibility="gone" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txt_content"
+            style="@style/TextAppearance.JustNotes.Subtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:maxLines="3"
+            android:padding="@dimen/indent_8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_title"
+            tools:text="To say I love you" />
+
+        <!--<com.google.android.material.chip.Chip
+            android:id="@+id/chip_reminder_date_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:chipIcon="@drawable/ic_bell"
+            app:iconStartPadding="@dimen/indent_2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_content"
+            tools:text="Sat 07 Aug 2021 14:50"
+            tools:visibility="visible" />-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

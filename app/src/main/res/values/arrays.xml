@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="reminder_time_for_note">
+        <item>@string/alarm_in_the_morning</item>
+        <item>@string/alarm_at_afternoon</item>
+        <item>@string/alarm_in_the_evening</item>
+        <item>@string/alarm_in_the_late_evening</item>
+        <item>@string/alarm_other_time</item>
+    </string-array>
+</resources>

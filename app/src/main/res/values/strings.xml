@@ -18,9 +18,29 @@
     <string name="sort_by_name">Sort by name</string>
     <string name="sort_by_date">Sort by date created</string>
     <string name="hide_completed">Hide completed</string>
+    <string name="hide_not_important">Hide not important</string>
     <string name="delete_completed">Delete all completed</string>
     <string name="delete_all">Delete all</string>
     <string name="add_todo_list">Add todo list</string>
     <string name="todo_list_name">Todo list name</string>
     <string name="todo_list_created">Todo list created</string>
+    <string name="note_title">Title</string>
+    <string name="note_content">Content</string>
+    <string name="important_note">Important note</string>
+    <string name="edit_note">Edit note</string>
+    <string name="err_empty_list">Oops! Seems like nothing here. Try to add something</string>
+    <string name="just_notes_reminders_channel_name">Reminders</string>
+    <string name="just_notes_reminders_channel_description">Reminders to be appeared here</string>
+    <string name="just_notes_reminders_reset_channel_name">Reset reminders notifications</string>
+    <string name="just_notes_reminders_reset_channel_description">Reset reminders notifications to be appeared here</string>
+    <string name="set_reminder">Set reminder</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="alarm_in_the_morning">In the morning (09:00)</string>
+    <string name="alarm_at_afternoon">At afternoon (13:00)</string>
+    <string name="alarm_in_the_evening">In the evening (18:00)</string>
+    <string name="alarm_in_the_late_evening">In the late evening (21:00)</string>
+    <string name="alarm_other_time">Other time…</string>
+    <string name="hide_without_reminders">Hide notes without reminders</string>
+    <string name="cancel_all_reminders">Cancel all reminders</string>
 </resources>

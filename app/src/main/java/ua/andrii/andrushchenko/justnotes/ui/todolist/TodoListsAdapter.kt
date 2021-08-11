@@ -13,8 +13,7 @@ class TodoListsAdapter(private val listener: OnItemClickListener) : BaseListAdap
 ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        val binding =
-            ItemTodoListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemTodoListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return TodoListsViewHolder(binding)
     }
 

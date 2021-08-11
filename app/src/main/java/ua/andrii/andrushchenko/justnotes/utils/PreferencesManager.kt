@@ -5,11 +5,8 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "PreferencesManager"
 
@@ -19,8 +16,13 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "us
 
 data class TasksFilterPreferences(val sortOrder: SortOrder, val hideCompleted: Boolean)
 
-@Singleton
-class PreferencesManager @Inject constructor(@ApplicationContext context: Context) {
+data class NotesFilterPreferences(
+    val sortOrder: SortOrder,
+    val hideNotImportant: Boolean,
+    val hideWithoutReminders: Boolean
+)
+
+class PreferencesManager(context: Context) {
 
     private val dataStore = context.dataStore
 
@@ -37,6 +39,18 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
     suspend fun updateNotesSortOrder(sortOrder: SortOrder) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.NOTES_SORT_ORDER] = sortOrder.name
+        }
+    }
+
+    suspend fun updateNotesHideNotImportant(hideNotImportant: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.NOTES_HIDE_NOT_IMPORTANT] = hideNotImportant
+        }
+    }
+
+    suspend fun updateNotesHideWithoutReminders(hideWithoutReminders: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.NOTES_HIDE_WITHOUT_REMINDERS] = hideWithoutReminders
         }
     }
 
@@ -60,6 +74,8 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
 
     object PreferencesKeys {
         val NOTES_SORT_ORDER = stringPreferencesKey("notes_sort_order")
+        val NOTES_HIDE_NOT_IMPORTANT = booleanPreferencesKey("notes_hide_not_important")
+        val NOTES_HIDE_WITHOUT_REMINDERS = booleanPreferencesKey("notes_hide_without_reminders")
         val TODO_LISTS_SORT_ORDER = stringPreferencesKey("todo_lists_sort_order")
         val TASKS_SORT_ORDER = stringPreferencesKey("tasks_sort_order")
         val TASKS_HIDE_COMPLETED = booleanPreferencesKey("tasks_hide_completed")

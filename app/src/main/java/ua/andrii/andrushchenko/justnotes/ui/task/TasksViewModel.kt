@@ -29,6 +29,8 @@ class TasksViewModel @Inject constructor(
 
     val todoList = state.get<TodoList>("todoList")
 
+    private var todoListTitle: String = todoList?.title ?: ""
+
     val tasksSearchQuery = state.getLiveData("tasksSearchQuery", "")
 
     val preferencesFlow = preferencesManager.preferencesFlow.map { preferences ->
@@ -36,7 +38,8 @@ class TasksViewModel @Inject constructor(
             preferences[PreferencesManager.PreferencesKeys.TASKS_SORT_ORDER]
                 ?: SortOrder.BY_DATE.name
         )
-        val hideCompleted = preferences[PreferencesManager.PreferencesKeys.TASKS_HIDE_COMPLETED] ?: false
+        val hideCompleted =
+            preferences[PreferencesManager.PreferencesKeys.TASKS_HIDE_COMPLETED] ?: false
         TasksFilterPreferences(sortOrder, hideCompleted)
     }
 
@@ -48,8 +51,13 @@ class TasksViewModel @Inject constructor(
         preferencesFlow
     ) { query, tasksFilterPreferences ->
         Pair(query, tasksFilterPreferences)
-    }.flatMapLatest { (query, filterPreferences) ->
-        taskDao.getTasks(query, todoList!!.id, filterPreferences.sortOrder, filterPreferences.hideCompleted)
+    }.flatMapLatest { (query, tasksFilterPreferences) ->
+        taskDao.getTasks(
+            query,
+            todoList!!.id,
+            tasksFilterPreferences.sortOrder,
+            tasksFilterPreferences.hideCompleted
+        )
     }
 
     val tasks = tasksFlow.asLiveData()
@@ -58,7 +66,7 @@ class TasksViewModel @Inject constructor(
         preferencesManager.updateTasksSortOrder(sortOrder)
     }
 
-    fun onHideCompletedClick(hideCompleted: Boolean) = viewModelScope.launch {
+    fun onHideCompletedClicked(hideCompleted: Boolean) = viewModelScope.launch {
         preferencesManager.updateTasksHideCompleted(hideCompleted)
     }
 
@@ -98,9 +106,14 @@ class TasksViewModel @Inject constructor(
         tasksEventChannel.send(TasksEvent.NavigateToDeleteAllCompletedInTodoListScreen)
     }
 
-    fun onChangeTodoListTitleClicked(title: String) = viewModelScope.launch {
-        val todoList = todoList?.copy(title = title)
-        todoListDao.update(todoList!!)
+    fun onChangeTodoListTitleClicked(title: String?) = viewModelScope.launch {
+        title?.let {
+            if (it != todoListTitle) {
+                val todoList = todoList?.copy(title = it)
+                todoListDao.update(todoList!!)
+                todoListTitle = title
+            }
+        }
     }
 
     sealed class TasksEvent {

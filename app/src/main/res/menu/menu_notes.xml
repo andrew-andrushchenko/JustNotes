@@ -1,4 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_notes_search"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:icon="@drawable/ic_sort"
+        android:title="@string/sort"
+        app:showAsAction="ifRoom">
+
+        <menu>
+
+            <item
+                android:id="@+id/action_notes_sort_by_name"
+                android:title="@string/sort_by_name" />
+
+            <item
+                android:id="@+id/action_notes_sort_by_date_last_edited"
+                android:title="@string/sort_by_date" />
+
+        </menu>
+
+    </item>
+
+    <item
+        android:id="@+id/action_notes_hide_not_important"
+        android:checkable="true"
+        android:title="@string/hide_not_important"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_notes_hide_without_reminders"
+        android:checkable="true"
+        android:title="@string/hide_without_reminders"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_notes_cancel_all_reminders"
+        android:title="@string/cancel_all_reminders"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_notes_delete_all"
+        android:title="@string/delete_all"
+        app:showAsAction="never" />
 
 </menu>

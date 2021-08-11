@@ -12,6 +12,19 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_view_empty"
+        style="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawablePadding="@dimen/indent_8dp"
+        android:gravity="center"
+        android:text="@string/err_empty_list"
+        android:visibility="gone"
+        app:drawableTopCompat="@drawable/ic_note_outlined"
+        tools:visibility="visible" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_todo_list"
         android:layout_width="wrap_content"

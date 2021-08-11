@@ -12,7 +12,7 @@ data class Note(
     val title: String,
     val content: String,
     val isUrgent: Boolean = false,
-    val isRecycled: Boolean = false,
     val reminderAlarmTimeMillis: Long = -1L,
-    val lastEditedTimeMillis: Long = -1L
+    val hasReminder: Boolean = reminderAlarmTimeMillis != -1L,
+    val lastEditedTimeMillis: Long = System.currentTimeMillis()
 ) : Parcelable

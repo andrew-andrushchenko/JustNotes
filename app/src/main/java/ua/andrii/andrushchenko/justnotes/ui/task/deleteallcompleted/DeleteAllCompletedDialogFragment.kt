@@ -16,7 +16,7 @@ class DeleteAllCompletedDialogFragment : DialogFragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Confirm deletion")
             .setMessage("Do you really want to delete all completed tasks?")
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("No", null)
             .setPositiveButton("Yes") { _, _ ->
                 viewModel.onConfirmClick()
             }

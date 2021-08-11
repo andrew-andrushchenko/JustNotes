@@ -41,8 +41,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_add"
-        android:tint="@color/pink_200"
+        android:src="@drawable/ic_priority_high"
+        android:tint="?attr/colorOnSurface"
         app:layout_constraintBottom_toBottomOf="@id/text_view_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/text_view_name" />

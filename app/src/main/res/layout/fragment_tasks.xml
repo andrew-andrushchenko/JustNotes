@@ -16,9 +16,9 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="@dimen/indent_0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/task_name"
+            android:hint="@string/todo_list_name"
             android:padding="@dimen/indent_8dp"
-            app:layout_constraintEnd_toStartOf="@id/btn_done"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -31,23 +31,32 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/indent_8dp"
-            android:text="@string/done"
-            app:layout_constraintBottom_toBottomOf="@id/todo_list_title_input_layout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/todo_list_title_input_layout" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="@dimen/indent_0dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/todo_list_title_input_layout" />
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/todo_list_title_input_layout"
+            tools:visibility="gone"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_view_empty"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawablePadding="@dimen/indent_8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center"
+            android:text="@string/err_empty_list"
+            android:visibility="gone"
+            app:drawableTopCompat="@drawable/ic_note_outlined"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

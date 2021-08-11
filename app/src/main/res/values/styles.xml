@@ -59,4 +59,10 @@
         <item name="android:padding">@dimen/indent_4dp</item>
     </style>
 
+    <style name="JustNotes.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <item name="boxStrokeColor">?attr/colorOnPrimary</item>
+        <item name="boxStrokeWidth">@dimen/indent_1dp</item>
+        <item name="boxStrokeWidthFocused">@dimen/indent_2dp</item>
+    </style>
+
 </resources>
