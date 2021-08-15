@@ -16,13 +16,16 @@ interface TodoListDao {
     @Query("SELECT * FROM todo_lists_table WHERE title LIKE '%' || :searchQuery || '%' ORDER BY created DESC")
     fun getTodoListsSortedByDate(searchQuery: String): Flow<List<TodoList>>
 
-    @Query("SELECT * FROM todo_lists_table WHERE title LIKE '%' || :searchQuery || '%' ORDER BY title DESC")
+    @Query("SELECT * FROM todo_lists_table WHERE title LIKE '%' || :searchQuery || '%' ORDER BY title ASC")
     fun getTodoListsSortedByName(searchQuery: String): Flow<List<TodoList>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(todoList: TodoList)
+    @Query("SELECT * FROM todo_lists_table WHERE id = :id")
+    suspend fun getTodoListById(id: Long): TodoList
 
-    @Update
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(todoList: TodoList): Long
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(todoList: TodoList)
 
     @Delete

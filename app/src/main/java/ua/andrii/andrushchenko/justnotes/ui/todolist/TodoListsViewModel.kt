@@ -3,16 +3,12 @@ package ua.andrii.andrushchenko.justnotes.ui.todolist
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.data.task.TaskDao
 import ua.andrii.andrushchenko.justnotes.data.todolist.TodoListDao
 import ua.andrii.andrushchenko.justnotes.domain.Task
 import ua.andrii.andrushchenko.justnotes.domain.TodoList
-import ua.andrii.andrushchenko.justnotes.ui.main.ADD_RESULT_OK
 import ua.andrii.andrushchenko.justnotes.utils.PreferencesManager
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import javax.inject.Inject
@@ -37,7 +33,7 @@ class TodoListsViewModel @Inject constructor(
     private val todoListsEventChannel = Channel<TodoListsEvent>()
     val todoListsEvent = todoListsEventChannel.receiveAsFlow()
 
-    private val todoListsFlow = combine(
+    private val todoListsFlow: Flow<List<TodoList>> = combine(
         todoListsSearchQuery.asFlow(),
         preferencesFlow
     ) { query, sortOrder ->
@@ -46,18 +42,21 @@ class TodoListsViewModel @Inject constructor(
         todoListDao.getTodoLists(query, sortOrder)
     }
 
-    val todoLists = todoListsFlow.asLiveData()
+    val todoLists: LiveData<List<TodoList>> = todoListsFlow.asLiveData()
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateTodoListsSortOrder(sortOrder)
     }
 
     fun onTodoListSelected(todoList: TodoList) = viewModelScope.launch {
-        todoListsEventChannel.send(TodoListsEvent.NavigateToTasksScreen(todoList))
+        todoListsEventChannel.send(TodoListsEvent.NavigateToEditTodoListScreen(todoList))
     }
 
     fun onAddNewTodoListClicked() = viewModelScope.launch {
-        todoListsEventChannel.send(TodoListsEvent.NavigateToCreateTodoListScreen)
+        val id = todoListDao.insert(TodoList(title = ""))
+        // This is because we need the actual inserted into DB TodoList, which has assigned id
+        val newTodoList = todoListDao.getTodoListById(id)
+        todoListsEventChannel.send(TodoListsEvent.NavigateToCreateTodoListScreen(newTodoList))
     }
 
     fun onUndoDeleteClicked(todoList: TodoList, tasks: List<Task>) = viewModelScope.launch {
@@ -69,7 +68,12 @@ class TodoListsViewModel @Inject constructor(
         todoListDao.delete(todoList)
         val todoListTasks = tasksDao.getTasksBelongTodoList(todoList.id)
         tasksDao.deleteAllTasksBelongTodoList(todoList.id)
-        todoListsEventChannel.send(TodoListsEvent.ShowUndoDeleteTaskMessage(todoList, todoListTasks))
+        todoListsEventChannel.send(
+            TodoListsEvent.ShowUndoDeleteTaskMessage(
+                todoList,
+                todoListTasks
+            )
+        )
     }
 
     fun onDeleteAllClicked() = viewModelScope.launch {
@@ -77,17 +81,10 @@ class TodoListsViewModel @Inject constructor(
         tasksDao.deleteAll()
     }
 
-    fun onAddResult(result: Int) = viewModelScope.launch {
-        if (result == ADD_RESULT_OK) {
-            todoListsEventChannel.send(TodoListsEvent.ShowTodoListSavedConfirmationMessage("Todo list added"))
-        }
-    }
-
     sealed class TodoListsEvent {
-        object NavigateToCreateTodoListScreen : TodoListsEvent()
-        data class NavigateToTasksScreen(val todoList: TodoList) : TodoListsEvent()
+        data class NavigateToCreateTodoListScreen(val todoList: TodoList) : TodoListsEvent()
+        data class NavigateToEditTodoListScreen(val todoList: TodoList) : TodoListsEvent()
         data class ShowUndoDeleteTaskMessage(val todoList: TodoList, val tasks: List<Task>) : TodoListsEvent()
-        data class ShowTodoListSavedConfirmationMessage(val msg: String) : TodoListsEvent()
     }
 
 }

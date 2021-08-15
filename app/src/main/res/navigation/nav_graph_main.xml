@@ -17,21 +17,6 @@
             android:id="@+id/action_notesFragment_to_cancelAllRemindersDialogFragment"
             app:destination="@id/cancelAllRemindersDialogFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/tasksFragment"
-        android:name="ua.andrii.andrushchenko.justnotes.ui.task.TasksFragment"
-        android:label="@string/tasks"
-        tools:layout="@layout/fragment_tasks">
-        <action
-            android:id="@+id/action_tasksFragment_to_addEditTaskDialog"
-            app:destination="@id/addEditTaskDialog" />
-        <argument
-            android:name="todoList"
-            app:argType="ua.andrii.andrushchenko.justnotes.domain.TodoList" />
-        <action
-            android:id="@+id/action_tasksFragment_to_deleteAllCompletedDialogFragment"
-            app:destination="@id/deleteAllCompletedDialogFragment" />
-    </fragment>
     <dialog
         android:id="@+id/addEditTaskDialog"
         android:name="ua.andrii.andrushchenko.justnotes.ui.task.addedittask.AddEditTaskDialog"
@@ -61,16 +46,9 @@
         android:label="@string/todo_lists"
         tools:layout="@layout/fragment_todo_lists">
         <action
-            android:id="@+id/action_todoListsFragment_to_tasksFragment"
-            app:destination="@id/tasksFragment" />
-        <action
-            android:id="@+id/action_todoListsFragment_to_addTodoListDialog"
-            app:destination="@id/addTodoListDialog" />
+            android:id="@+id/action_todoListsFragment_to_addEditTodoListFragment"
+            app:destination="@id/addEditTodoListFragment" />
     </fragment>
-    <dialog
-        android:id="@+id/addTodoListDialog"
-        android:name="ua.andrii.andrushchenko.justnotes.ui.todolist.addtodolist.AddTodoListDialog"
-        tools:layout="@layout/bottom_sheet_add_todo_list" />
     <fragment
         android:id="@+id/addEditNoteFragment"
         android:name="ua.andrii.andrushchenko.justnotes.ui.note.addeditnote.AddEditNoteFragment"
@@ -89,4 +67,19 @@
         android:id="@+id/cancelAllRemindersDialogFragment"
         android:name="ua.andrii.andrushchenko.justnotes.ui.note.cancelallreminders.CancelAllRemindersDialogFragment"
         android:label="CancelAllRemindersDialogFragment" />
+    <fragment
+        android:id="@+id/addEditTodoListFragment"
+        android:name="ua.andrii.andrushchenko.justnotes.ui.todolist.addedittodolist.AddEditTodoListFragment"
+        android:label="@string/add_todo_list"
+        tools:layout="@layout/fragment_add_edit_todo_list">
+        <action
+            android:id="@+id/action_addEditTodoListFragment_to_addEditTaskDialog"
+            app:destination="@id/addEditTaskDialog" />
+        <action
+            android:id="@+id/action_addEditTodoListFragment_to_deleteAllCompletedDialogFragment"
+            app:destination="@id/deleteAllCompletedDialogFragment" />
+        <argument
+            android:name="todoList"
+            app:argType="ua.andrii.andrushchenko.justnotes.domain.TodoList" />
+    </fragment>
 </navigation>

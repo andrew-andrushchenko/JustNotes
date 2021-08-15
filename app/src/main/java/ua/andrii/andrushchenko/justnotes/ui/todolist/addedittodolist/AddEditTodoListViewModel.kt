@@ -1,35 +1,33 @@
-package ua.andrii.andrushchenko.justnotes.ui.task
+package ua.andrii.andrushchenko.justnotes.ui.todolist.addedittodolist
 
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.data.task.TaskDao
 import ua.andrii.andrushchenko.justnotes.data.todolist.TodoListDao
+import ua.andrii.andrushchenko.justnotes.di.ApplicationScope
 import ua.andrii.andrushchenko.justnotes.domain.Task
 import ua.andrii.andrushchenko.justnotes.domain.TodoList
-import ua.andrii.andrushchenko.justnotes.ui.main.ADD_RESULT_OK
-import ua.andrii.andrushchenko.justnotes.ui.main.EDIT_RESULT_OK
 import ua.andrii.andrushchenko.justnotes.utils.PreferencesManager
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.TasksFilterPreferences
 import javax.inject.Inject
 
 @HiltViewModel
-class TasksViewModel @Inject constructor(
+class AddEditTodoListViewModel @Inject constructor(
     private val todoListDao: TodoListDao,
     private val taskDao: TaskDao,
     private val preferencesManager: PreferencesManager,
+    @ApplicationScope private val applicationScope: CoroutineScope,
     state: SavedStateHandle
 ) : ViewModel() {
 
     val todoList = state.get<TodoList>("todoList")
 
-    private var todoListTitle: String = todoList?.title ?: ""
+    var todoListTitle: String = todoList?.title ?: ""
 
     val tasksSearchQuery = state.getLiveData("tasksSearchQuery", "")
 
@@ -43,24 +41,26 @@ class TasksViewModel @Inject constructor(
         TasksFilterPreferences(sortOrder, hideCompleted)
     }
 
-    private val tasksEventChannel = Channel<TasksEvent>()
+    private val tasksEventChannel = Channel<AddEditTodoListEvent>()
     val tasksEvent = tasksEventChannel.receiveAsFlow()
 
-    private val tasksFlow = combine(
+    private val tasksFlow: Flow<List<Task>> = combine(
         tasksSearchQuery.asFlow(),
         preferencesFlow
     ) { query, tasksFilterPreferences ->
         Pair(query, tasksFilterPreferences)
     }.flatMapLatest { (query, tasksFilterPreferences) ->
-        taskDao.getTasks(
-            query,
-            todoList!!.id,
-            tasksFilterPreferences.sortOrder,
-            tasksFilterPreferences.hideCompleted
-        )
+        todoList?.let {
+            taskDao.getTasks(
+                query,
+                it.id,
+                tasksFilterPreferences.sortOrder,
+                tasksFilterPreferences.hideCompleted
+            )
+        } ?: emptyFlow()
     }
 
-    val tasks = tasksFlow.asLiveData()
+    val tasks: LiveData<List<Task>> = tasksFlow.asLiveData()
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateTasksSortOrder(sortOrder)
@@ -71,7 +71,7 @@ class TasksViewModel @Inject constructor(
     }
 
     fun onTaskSelected(task: Task) = viewModelScope.launch {
-        tasksEventChannel.send(TasksEvent.NavigateToEditTaskScreen(task))
+        tasksEventChannel.send(AddEditTodoListEvent.NavigateToEditTaskScreen(task))
     }
 
     fun onTaskCheckedChanged(task: Task, isChecked: Boolean) = viewModelScope.launch {
@@ -80,7 +80,7 @@ class TasksViewModel @Inject constructor(
 
     fun onTaskSwiped(task: Task) = viewModelScope.launch {
         taskDao.delete(task)
-        tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
+        tasksEventChannel.send(AddEditTodoListEvent.ShowUndoDeleteTaskMessage(task))
     }
 
     fun onUndoDeleteClicked(task: Task) = viewModelScope.launch {
@@ -88,39 +88,32 @@ class TasksViewModel @Inject constructor(
     }
 
     fun onAddNewTaskClicked() = viewModelScope.launch {
-        tasksEventChannel.send(TasksEvent.NavigateToAddTaskScreen)
+        tasksEventChannel.send(AddEditTodoListEvent.NavigateToAddTaskScreen)
     }
 
-    fun onAddEditResult(result: Int) {
-        when (result) {
-            ADD_RESULT_OK -> showTaskSavedConfirmationMessage("Task added")
-            EDIT_RESULT_OK -> showTaskSavedConfirmationMessage("Task updated")
-        }
-    }
-
-    private fun showTaskSavedConfirmationMessage(text: String) = viewModelScope.launch {
-        tasksEventChannel.send(TasksEvent.ShowTaskSavedConfirmationMessage(text))
-    }
-
-    fun onDeleteAllCompletedInTodoListClicked() = viewModelScope.launch {
-        tasksEventChannel.send(TasksEvent.NavigateToDeleteAllCompletedInTodoListScreen)
-    }
-
-    fun onChangeTodoListTitleClicked(title: String?) = viewModelScope.launch {
-        title?.let {
-            if (it != todoListTitle) {
-                val todoList = todoList?.copy(title = it)
-                todoListDao.update(todoList!!)
-                todoListTitle = title
+    /** Application scope is using here to let DB operations be finalized
+    * after current view model becomes cleared.
+    * This method should be called when user navigates back */
+    fun onSaveTodoList() = applicationScope.launch {
+        todoList?.let {
+            val todoListTasks = taskDao.getTasksBelongTodoList(it.id)
+            if (todoListTitle.isBlank() && todoListTasks.isEmpty()) {
+                todoListDao.delete(it)
+            } else {
+                todoListDao.update(it.copy(title = todoListTitle))
             }
         }
     }
 
-    sealed class TasksEvent {
-        object NavigateToAddTaskScreen : TasksEvent()
-        data class NavigateToEditTaskScreen(val task: Task) : TasksEvent()
-        data class ShowUndoDeleteTaskMessage(val task: Task) : TasksEvent()
-        data class ShowTaskSavedConfirmationMessage(val msg: String) : TasksEvent()
-        object NavigateToDeleteAllCompletedInTodoListScreen : TasksEvent()
+    fun onDeleteAllCompletedInTodoListClicked() = viewModelScope.launch {
+        tasksEventChannel.send(AddEditTodoListEvent.NavigateToDeleteAllCompletedInTodoListScreen)
+    }
+
+    sealed class AddEditTodoListEvent {
+        object NavigateToAddTaskScreen : AddEditTodoListEvent()
+        object NavigateToDeleteAllCompletedInTodoListScreen : AddEditTodoListEvent()
+        data class NavigateToEditTaskScreen(val task: Task) : AddEditTodoListEvent()
+        data class ShowUndoDeleteTaskMessage(val task: Task) : AddEditTodoListEvent()
+        data class ShowTaskSavedConfirmationMessage(val msg: String) : AddEditTodoListEvent()
     }
 }

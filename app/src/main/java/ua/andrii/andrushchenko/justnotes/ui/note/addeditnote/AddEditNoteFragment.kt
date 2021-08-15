@@ -12,6 +12,8 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -32,6 +34,8 @@ class AddEditNoteFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setupToolbar()
 
         with(binding) {
             notesTitleInputLayout.editText?.setText(viewModel.noteTitle)
@@ -123,6 +127,21 @@ class AddEditNoteFragment :
         }
     }
 
+    private fun setupToolbar() {
+        binding.toolbar.apply {
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(
+                    R.id.notesFragment,
+                    R.id.todoListsFragment,
+                )
+            )
+            val navController = findNavController()
+            setupWithNavController(navController, appBarConfiguration)
+            setNavigationOnClickListener {
+
+            }
+        }
+    }
 
     private fun initAlarmTimeDropdownMenu() = with(binding) {
         val arrayAdapter = ArrayAdapter.createFromResource(

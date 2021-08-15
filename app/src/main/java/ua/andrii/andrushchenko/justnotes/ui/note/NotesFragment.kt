@@ -1,15 +1,14 @@
 package ua.andrii.andrushchenko.justnotes.ui.note
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -40,6 +39,8 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
                 viewModel.onNoteSelected(note)
             }
         })
+
+        setupToolbar()
 
         with(binding) {
             recyclerView.apply {
@@ -125,8 +126,6 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
                 }
             }
         }
-
-        setHasOptionsMenu(true)
     }
 
     private fun toggleTextViewEmpty(isVisible: Boolean) {
@@ -136,57 +135,70 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_notes, menu)
+    private fun setupToolbar() {
+        binding.toolbar.apply {
+            inflateMenu(R.menu.menu_notes)
 
-        val searchItem = menu.findItem(R.id.action_notes_search)
-        searchView = searchItem.actionView as SearchView
+            // Setup menu
+            val searchItem = menu.findItem(R.id.action_notes_search)
+            searchView = searchItem.actionView as SearchView
 
-        val pendingQuery = viewModel.notesSearchQuery.value
-        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
-            searchItem.expandActionView()
-            searchView.setQuery(pendingQuery, false)
-        }
+            val pendingQuery = viewModel.notesSearchQuery.value
+            if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+                searchItem.expandActionView()
+                searchView.setQuery(pendingQuery, false)
+            }
 
-        searchView.onQueryTextChanged {
-            viewModel.notesSearchQuery.value = it
-        }
+            searchView.onQueryTextChanged {
+                viewModel.notesSearchQuery.value = it
+            }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            menu.findItem(R.id.action_notes_hide_not_important).isChecked =
-                viewModel.preferencesFlow.first().hideNotImportant
-        }
-    }
+            viewLifecycleOwner.lifecycleScope.launch {
+                menu.findItem(R.id.action_notes_hide_not_important).isChecked =
+                    viewModel.preferencesFlow.first().hideNotImportant
+            }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_notes_sort_by_name -> {
-                viewModel.onSortOrderSelected(SortOrder.BY_NAME)
-                true
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_notes_sort_by_name -> {
+                        viewModel.onSortOrderSelected(SortOrder.BY_NAME)
+                        true
+                    }
+                    R.id.action_notes_sort_by_date_last_edited -> {
+                        viewModel.onSortOrderSelected(SortOrder.BY_DATE)
+                        true
+                    }
+                    R.id.action_notes_hide_not_important -> {
+                        item.isChecked = !item.isChecked
+                        viewModel.onHideNotImportantClicked(item.isChecked)
+                        true
+                    }
+                    R.id.action_notes_hide_without_reminders -> {
+                        item.isChecked = !item.isChecked
+                        viewModel.onHideNotesWithoutReminders(item.isChecked)
+                        true
+                    }
+                    R.id.action_notes_cancel_all_reminders -> {
+                        viewModel.onCancelAllRemindersClicked()
+                        true
+                    }
+                    R.id.action_tasks_delete_all_completed_tasks -> {
+                        viewModel.onDeleteAllNotesClicked()
+                        true
+                    }
+                    else -> super.onOptionsItemSelected(item)
+                }
             }
-            R.id.action_notes_sort_by_date_last_edited -> {
-                viewModel.onSortOrderSelected(SortOrder.BY_DATE)
-                true
-            }
-            R.id.action_notes_hide_not_important -> {
-                item.isChecked = !item.isChecked
-                viewModel.onHideNotImportantClicked(item.isChecked)
-                true
-            }
-            R.id.action_notes_hide_without_reminders -> {
-                item.isChecked = !item.isChecked
-                viewModel.onHideNotesWithoutReminders(item.isChecked)
-                true
-            }
-            R.id.action_notes_cancel_all_reminders -> {
-                viewModel.onCancelAllRemindersClicked()
-                true
-            }
-            R.id.action_tasks_delete_all_completed_tasks -> {
-                viewModel.onDeleteAllNotesClicked()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+
+            // Finish setup the toolbar
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(
+                    R.id.notesFragment,
+                    R.id.todoListsFragment,
+                )
+            )
+            val navController = findNavController()
+            setupWithNavController(navController, appBarConfiguration)
         }
     }
 

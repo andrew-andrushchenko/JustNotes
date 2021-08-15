@@ -3,10 +3,7 @@ package ua.andrii.andrushchenko.justnotes.ui.note
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.data.note.NoteDao
 import ua.andrii.andrushchenko.justnotes.domain.Note
@@ -41,7 +38,7 @@ class NotesViewModel @Inject constructor(
     private val notesEventChannel = Channel<NoteEvent>()
     val notesEvent = notesEventChannel.receiveAsFlow()
 
-    private val notesFlow = combine(
+    private val notesFlow: Flow<List<Note>> = combine(
         notesSearchQuery.asFlow(),
         preferencesFlow
     ) { searchQuery, notesFilterPreferences ->
@@ -55,7 +52,7 @@ class NotesViewModel @Inject constructor(
         )
     }
 
-    val notes = notesFlow.asLiveData()
+    val notes: LiveData<List<Note>> = notesFlow.asLiveData()
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateNotesSortOrder(sortOrder)

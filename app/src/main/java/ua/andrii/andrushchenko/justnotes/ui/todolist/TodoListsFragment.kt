@@ -1,15 +1,13 @@
 package ua.andrii.andrushchenko.justnotes.ui.todolist
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -40,10 +38,11 @@ class TodoListsFragment :
             }
         })
 
+        setupToolbar()
+
         with(binding) {
             recyclerView.apply {
                 adapter = todoListsAdapter
-                //setupLinearLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
                 setupStaggeredGridLayoutManager(
                     resources.getDimensionPixelSize(R.dimen.indent_8dp)
                 )
@@ -73,11 +72,6 @@ class TodoListsFragment :
             }
         }
 
-        setFragmentResultListener("add_todo_list_request") { _, bundle ->
-            val result = bundle.getInt("add_todo_list_result")
-            viewModel.onAddResult(result)
-        }
-
         viewModel.todoLists.observe(viewLifecycleOwner) {
             todoListsAdapter.submitList(it)
             toggleTextViewEmpty(it.isEmpty())
@@ -88,12 +82,16 @@ class TodoListsFragment :
                 when (event) {
                     is TodoListsViewModel.TodoListsEvent.NavigateToCreateTodoListScreen -> {
                         val direction =
-                            TodoListsFragmentDirections.actionTodoListsFragmentToAddTodoListDialog()
+                            TodoListsFragmentDirections.actionTodoListsFragmentToAddEditTodoListFragment(
+                                todoList = event.todoList
+                            )
                         findNavController().navigate(direction)
                     }
-                    is TodoListsViewModel.TodoListsEvent.NavigateToTasksScreen -> {
+                    is TodoListsViewModel.TodoListsEvent.NavigateToEditTodoListScreen -> {
                         val direction =
-                            TodoListsFragmentDirections.actionTodoListsFragmentToTasksFragment(event.todoList)
+                            TodoListsFragmentDirections.actionTodoListsFragmentToAddEditTodoListFragment(
+                                todoList = event.todoList
+                            )
                         findNavController().navigate(direction)
                     }
                     is TodoListsViewModel.TodoListsEvent.ShowUndoDeleteTaskMessage -> {
@@ -106,18 +104,9 @@ class TodoListsFragment :
                                 viewModel.onUndoDeleteClicked(event.todoList, event.tasks)
                             }.show()
                     }
-                    is TodoListsViewModel.TodoListsEvent.ShowTodoListSavedConfirmationMessage -> {
-                        Snackbar.make(
-                            requireView(),
-                            getString(R.string.todo_list_created),
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
                 }
             }
         }
-
-        setHasOptionsMenu(true)
     }
 
     private fun toggleTextViewEmpty(isVisible: Boolean) {
@@ -127,38 +116,51 @@ class TodoListsFragment :
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_todo_lists, menu)
+    private fun setupToolbar() {
+        binding.toolbar.apply {
+            inflateMenu(R.menu.menu_todo_lists)
 
-        val searchItem = menu.findItem(R.id.action_todo_lists_search)
-        searchView = searchItem.actionView as SearchView
+            // Setup menu
+            val searchItem = menu.findItem(R.id.action_todo_lists_search)
+            searchView = searchItem.actionView as SearchView
 
-        val pendingQuery = viewModel.todoListsSearchQuery.value
-        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
-            searchItem.expandActionView()
-            searchView.setQuery(pendingQuery, false)
-        }
-
-        searchView.onQueryTextChanged {
-            viewModel.todoListsSearchQuery.value = it
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_todo_lists_sort_by_name -> {
-                viewModel.onSortOrderSelected(SortOrder.BY_NAME)
-                true
+            val pendingQuery = viewModel.todoListsSearchQuery.value
+            if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+                searchItem.expandActionView()
+                searchView.setQuery(pendingQuery, false)
             }
-            R.id.action_todo_lists_sort_by_date_created -> {
-                viewModel.onSortOrderSelected(SortOrder.BY_DATE)
-                true
+
+            searchView.onQueryTextChanged {
+                viewModel.todoListsSearchQuery.value = it
             }
-            R.id.action_delete_all_todo_lists -> {
-                viewModel.onDeleteAllClicked()
-                true
+
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_todo_lists_sort_by_name -> {
+                        viewModel.onSortOrderSelected(SortOrder.BY_NAME)
+                        true
+                    }
+                    R.id.action_todo_lists_sort_by_date_created -> {
+                        viewModel.onSortOrderSelected(SortOrder.BY_DATE)
+                        true
+                    }
+                    R.id.action_delete_all_todo_lists -> {
+                        viewModel.onDeleteAllClicked()
+                        true
+                    }
+                    else -> super.onOptionsItemSelected(item)
+                }
             }
-            else -> super.onOptionsItemSelected(item)
+
+            // Finish setup the toolbar
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(
+                    R.id.notesFragment,
+                    R.id.todoListsFragment,
+                )
+            )
+            val navController = findNavController()
+            setupWithNavController(navController, appBarConfiguration)
         }
     }
 
