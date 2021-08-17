@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/indent_16dp">
+    android:paddingStart="@dimen/indent_8dp"
+    android:paddingTop="@dimen/indent_16dp"
+    android:paddingEnd="@dimen/indent_8dp"
+    android:paddingBottom="@dimen/indent_16dp">
 
     <CheckBox
         android:id="@+id/check_box_completed"

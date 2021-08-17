@@ -25,73 +25,53 @@
         android:layout_marginTop="?attr/actionBarSize"
         android:animateLayoutChanges="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_done"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/notes_title_edit_text"
+            android:layout_width="@dimen/indent_0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/indent_8dp"
-            android:text="@string/done"
+            android:background="@null"
+            android:layout_margin="@dimen/indent_16dp"
+            android:hint="@string/title"
+            android:importantForAutofill="no"
+            android:inputType="textVisiblePassword|textNoSuggestions"
+            android:maxLines="1"
+            android:padding="@dimen/indent_16dp"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/check_box_set_reminder"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/notes_title_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/notes_content_edittext"
             android:layout_width="@dimen/indent_0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/note_title"
-            android:padding="@dimen/indent_8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_done">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textVisiblePassword|textNoSuggestions"
-                android:singleLine="true" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/notes_content_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="@dimen/indent_0dp"
-            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_margin="@dimen/indent_16dp"
             android:hint="@string/note_content"
-            android:padding="@dimen/indent_8dp"
+            android:importantForAutofill="no"
+            android:inputType="textVisiblePassword|textNoSuggestions"
+            android:padding="@dimen/indent_16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/notes_title_input_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textVisiblePassword|textNoSuggestions"
-                android:singleLine="true" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toBottomOf="@id/notes_title_edit_text" />
 
         <CheckBox
             android:id="@+id/check_box_important"
             android:layout_width="@dimen/indent_0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/indent_8dp"
-            android:layout_marginEnd="@dimen/indent_8dp"
+            android:layout_marginStart="@dimen/indent_16dp"
+            android:layout_marginEnd="@dimen/indent_16dp"
             android:text="@string/important_note"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/notes_content_input_layout" />
+            app:layout_constraintTop_toBottomOf="@id/notes_content_edittext" />
 
         <CheckBox
             android:id="@+id/check_box_set_reminder"
             android:layout_width="@dimen/indent_0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/indent_8dp"
-            android:layout_marginEnd="@dimen/indent_8dp"
+            android:layout_marginStart="@dimen/indent_16dp"
+            android:layout_marginEnd="@dimen/indent_16dp"
             android:text="@string/set_reminder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -102,9 +82,10 @@
             android:id="@+id/spinner_reminder_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/indent_8dp"
-            android:layout_marginEnd="@dimen/indent_8dp"
+            android:layout_marginStart="@dimen/indent_16dp"
+            android:layout_marginEnd="@dimen/indent_16dp"
             android:visibility="gone"
+            android:padding="@dimen/indent_16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/check_box_set_reminder"

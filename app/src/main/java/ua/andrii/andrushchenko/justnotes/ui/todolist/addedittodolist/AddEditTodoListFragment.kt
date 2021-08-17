@@ -3,10 +3,12 @@ package ua.andrii.andrushchenko.justnotes.ui.todolist.addedittodolist
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -24,6 +26,10 @@ import ua.andrii.andrushchenko.justnotes.databinding.FragmentAddEditTodoListBind
 import ua.andrii.andrushchenko.justnotes.domain.Task
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
 import ua.andrii.andrushchenko.justnotes.ui.task.TasksAdapter
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TASK_REQUEST
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TASK_RESULT
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_REQUEST
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
 import ua.andrii.andrushchenko.justnotes.utils.setupLinearLayoutManager
@@ -50,20 +56,27 @@ class AddEditTodoListFragment :
         })
 
         setupToolbar()
-
-        val onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                viewModel.onSaveTodoList()
-                findNavController().navigateUp()
-            }
-        }
-
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            onBackPressedCallback
-        )
+        setupOnSystemNavigationBackPressed()
 
         with(binding) {
+            todoListTitleEdittext.apply {
+                setText(viewModel.newTodoListTitle)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                    }
+
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        viewModel.newTodoListTitle = p0?.toString() ?: ""
+                    }
+
+                    override fun afterTextChanged(p0: Editable?) {
+
+                    }
+                })
+
+            }
+
             recyclerView.apply {
                 adapter = tasksAdapter
                 setupLinearLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
@@ -91,24 +104,11 @@ class AddEditTodoListFragment :
             fabAddTask.setOnClickListener {
                 viewModel.onAddNewTaskClicked()
             }
+        }
 
-            todoListTitleInputLayout.editText?.apply {
-                setText(viewModel.todoListTitle)
-                addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                    }
-
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                    }
-
-                    override fun afterTextChanged(p0: Editable?) {
-                        viewModel.todoListTitle = p0?.toString() ?: ""
-                    }
-                })
-
-            }
+        setFragmentResultListener(ADD_EDIT_TASK_REQUEST) { _, bundle ->
+            val result = bundle.getInt(ADD_EDIT_TASK_RESULT)
+            viewModel.onAddEditTaskResult(result)
         }
 
         viewModel.tasks.observe(viewLifecycleOwner) {
@@ -148,7 +148,7 @@ class AddEditTodoListFragment :
                         findNavController().navigate(direction)
                     }
                     is AddEditTodoListViewModel.AddEditTodoListEvent.ShowTaskSavedConfirmationMessage -> {
-                        Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), getString(event.msg), Snackbar.LENGTH_SHORT).show()
                     }
                     is AddEditTodoListViewModel.AddEditTodoListEvent.NavigateToDeleteAllCompletedInTodoListScreen -> {
                         val direction =
@@ -156,6 +156,13 @@ class AddEditTodoListFragment :
                                 viewModel.todoList!!.id
                             )
                         findNavController().navigate(direction)
+                    }
+                    is AddEditTodoListViewModel.AddEditTodoListEvent.NavigateBackWithResult -> {
+                        setFragmentResult(
+                            ADD_EDIT_TODO_LIST_REQUEST,
+                            bundleOf(ADD_EDIT_TODO_LIST_RESULT to event.result)
+                        )
+                        findNavController().popBackStack()
                     }
                 }
             }
@@ -224,11 +231,22 @@ class AddEditTodoListFragment :
             val navController = findNavController()
             setupWithNavController(navController, appBarConfiguration)
             setNavigationOnClickListener {
-                Log.d(TAG, "onViewCreated: navigation listener called")
-                viewModel.onSaveTodoList()
-                findNavController().navigateUp()
+                viewModel.saveTodoListAndNavigateBack()
             }
         }
+    }
+
+    private fun setupOnSystemNavigationBackPressed() {
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                viewModel.saveTodoListAndNavigateBack()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
     }
 
     override fun onDestroyView() {
@@ -236,5 +254,3 @@ class AddEditTodoListFragment :
         searchView.setOnQueryTextListener(null)
     }
 }
-
-private const val TAG = "AddEditTodoListFragment"

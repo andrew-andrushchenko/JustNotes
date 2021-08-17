@@ -33,14 +33,20 @@ class NotesAdapter(private val listener: OnItemClickListener) : BaseListAdapter<
 
         override fun bind(entity: Note) {
             with(binding) {
-                txtTitle.text = entity.title
+                if (entity.title.isNotBlank()) {
+                    txtTitle.visibility = View.VISIBLE
+                    txtTitle.text = entity.title
+                } else {
+                    txtTitle.visibility = View.GONE
+                }
                 txtContent.text = entity.content
                 root.strokeColor = if (entity.isUrgent)
-                    root.resources.getColor(R.color.red_400, null)
+                    root.resources.getColor(R.color.red_300, null)
                 else
                     root.resources.getColor(R.color.green_300, null)
                 if (entity.reminderAlarmTimeMillis != -1L) {
-                    txtReminderTime.text = DateTimeUtils.getFormattedString(entity.reminderAlarmTimeMillis)
+                    txtReminderTime.text =
+                        DateTimeUtils.getFormattedString(entity.reminderAlarmTimeMillis)
                     txtReminderTime.visibility = View.VISIBLE
                 } else {
                     txtReminderTime.visibility = View.GONE

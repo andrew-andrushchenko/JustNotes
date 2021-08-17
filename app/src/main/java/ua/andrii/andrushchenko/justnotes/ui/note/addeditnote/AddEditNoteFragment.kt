@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.collect
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentAddEditNoteBinding
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_REQUEST
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.ReminderHelper
 import java.util.*
 
@@ -38,47 +40,55 @@ class AddEditNoteFragment :
         setupToolbar()
 
         with(binding) {
-            notesTitleInputLayout.editText?.setText(viewModel.noteTitle)
-            notesContentInputLayout.editText?.setText(viewModel.noteContent)
+            notesTitleEditText.apply {
+                setText(viewModel.noteTitle)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        charSequence: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                        viewModel.noteTitle = charSequence.toString()
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {}
+                })
+            }
+            notesContentEdittext.apply {
+                setText(viewModel.noteContent)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                        viewModel.noteContent = s.toString()
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {}
+                })
+            }
+
             checkBoxImportant.isChecked = viewModel.noteIsUrgent
             checkBoxImportant.jumpDrawablesToCurrentState()
-
-            notesTitleInputLayout.editText?.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(
-                    charSequence: CharSequence?,
-                    start: Int,
-                    before: Int,
-                    count: Int
-                ) {
-                    viewModel.noteTitle = charSequence.toString()
-                }
-
-                override fun afterTextChanged(s: Editable?) {}
-            })
-
-            notesContentInputLayout.editText?.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    viewModel.noteContent = s.toString()
-                }
-
-                override fun afterTextChanged(s: Editable?) {}
-            })
 
             checkBoxImportant.setOnCheckedChangeListener { _, isChecked ->
                 viewModel.noteIsUrgent = isChecked
@@ -96,13 +106,10 @@ class AddEditNoteFragment :
                     }
                 }
                 isChecked = viewModel.noteHasReminder
+                spinnerReminderTime.visibility = if (viewModel.noteHasReminder) View.VISIBLE else View.GONE
             }
 
             initAlarmTimeDropdownMenu()
-
-            btnDone.setOnClickListener {
-                viewModel.onSaveClicked()
-            }
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -110,17 +117,17 @@ class AddEditNoteFragment :
                 when (event) {
                     is AddEditNoteViewModel.AddEditNoteEvent.NavigateBackWithResult -> {
                         with(binding) {
-                            notesTitleInputLayout.clearFocus()
-                            notesContentInputLayout.clearFocus()
+                            notesTitleEditText.clearFocus()
+                            notesContentEdittext.clearFocus()
                         }
                         setFragmentResult(
-                            "add_edit_note_request",
-                            bundleOf("add_edit_note_result" to event.result)
+                            ADD_EDIT_NOTE_REQUEST,
+                            bundleOf(ADD_EDIT_NOTE_RESULT to event.result)
                         )
                         findNavController().popBackStack()
                     }
                     is AddEditNoteViewModel.AddEditNoteEvent.ShowInvalidInputMessage -> {
-                        Toast.makeText(requireContext(), event.msg, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(event.msg), Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -129,6 +136,18 @@ class AddEditNoteFragment :
 
     private fun setupToolbar() {
         binding.toolbar.apply {
+            inflateMenu(R.menu.menu_add_edit_note)
+
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_add_edit_note_save -> {
+                        viewModel.onSaveClicked()
+                        true
+                    }
+                    else -> true
+                }
+            }
+
             val appBarConfiguration = AppBarConfiguration(
                 setOf(
                     R.id.notesFragment,
@@ -137,9 +156,6 @@ class AddEditNoteFragment :
             )
             val navController = findNavController()
             setupWithNavController(navController, appBarConfiguration)
-            setNavigationOnClickListener {
-
-            }
         }
     }
 
@@ -175,9 +191,10 @@ class AddEditNoteFragment :
     }
 
     private fun pickDate() {
-        val calendarConstraints = CalendarConstraints.Builder().setStart(System.currentTimeMillis() - 1000).build()
+        val calendarConstraints =
+            CalendarConstraints.Builder().setStart(System.currentTimeMillis() - 1000).build()
         val materialDatePicker = MaterialDatePicker.Builder.datePicker().apply {
-            setTitleText("Select date")
+            setTitleText(getString(R.string.select_date))
             setCalendarConstraints(calendarConstraints)
             setSelection(MaterialDatePicker.todayInUtcMilliseconds())
         }.build()
@@ -196,7 +213,7 @@ class AddEditNoteFragment :
     private fun pickTime() {
         val materialTimePicker = MaterialTimePicker.Builder().apply {
             val calendar = Calendar.getInstance()
-            setTitleText("Select reminder time")
+            setTitleText(getString(R.string.select_time))
             setTimeFormat(TimeFormat.CLOCK_24H)
             setHour(calendar[Calendar.HOUR])
             setMinute(calendar[Calendar.MINUTE])

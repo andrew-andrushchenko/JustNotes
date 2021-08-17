@@ -28,8 +28,12 @@ class ResetRemindersWorker @AssistedInject constructor(
 
         setForeground(ForegroundInfo(resetRemindersNotificationId, notificationBuilder.build()))
 
+        val now = Calendar.getInstance()
         for (note in notesWithReminders) {
-            reminderHelper.setReminder(note)
+            // Reset a reminder only if its time is in the future
+            if (note.reminderAlarmTimeMillis > now.timeInMillis) {
+                reminderHelper.setReminder(note)
+            }
         }
         return Result.success()
     }

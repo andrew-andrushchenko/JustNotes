@@ -22,13 +22,12 @@ class ReminderHelper(private val context: Context) {
             putExtra(Constants.EXTRA_ID, note.id)
             putExtra(Constants.EXTRA_TITLE, note.title)
             putExtra(Constants.EXTRA_CONTENT, note.content)
-            //putExtra(Constants.EXTRA_IS_URGENT, note.isUrgent)
         }.let { intent ->
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 note.id,
                 intent,
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
             alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,

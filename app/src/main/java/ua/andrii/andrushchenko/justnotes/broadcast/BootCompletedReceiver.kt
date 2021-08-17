@@ -8,8 +8,8 @@ import ua.andrii.andrushchenko.justnotes.worker.ResetRemindersWorker
 class BootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        when(intent.action) {
-            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED -> {
                 ResetRemindersWorker.enqueueResetReminders(context)
             }
         }

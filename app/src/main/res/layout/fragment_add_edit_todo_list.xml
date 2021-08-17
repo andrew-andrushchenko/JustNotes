@@ -22,28 +22,24 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_marginTop="?attr/actionBarSize"
+        android:animateLayoutChanges="true">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/todo_list_title_input_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/todo_list_title_edittext"
             android:layout_width="@dimen/indent_0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/todo_list_name"
-            android:padding="@dimen/indent_8dp"
+            android:background="@null"
+            android:hint="@string/title"
+            android:layout_margin="@dimen/indent_16dp"
+            android:importantForAutofill="no"
+            android:inputType="textVisiblePassword|textNoSuggestions"
+            android:maxLines="1"
+            android:padding="@dimen/indent_16dp"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAutofill="no"
-                android:inputType="textVisiblePassword|textNoSuggestions"
-                android:singleLine="true" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -52,7 +48,7 @@
             android:visibility="visible"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/todo_list_title_input_layout"
+            app:layout_constraintTop_toBottomOf="@id/todo_list_title_edittext"
             tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatTextView

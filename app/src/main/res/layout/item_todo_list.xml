@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="@dimen/indent_16dp"
-    app:strokeColor="@color/pink_200"
+    app:cardCornerRadius="@dimen/indent_48dp"
+    app:strokeColor="@color/green_500"
     app:strokeWidth="@dimen/indent_2dp">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/todo_list_title"
-        style="@style/TextAppearance.MaterialComponents.Subtitle2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="@dimen/indent_16dp"
+        android:textStyle="bold"
         tools:text="My Todo List" />
 
 </com.google.android.material.card.MaterialCardView>

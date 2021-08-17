@@ -24,7 +24,7 @@
     <string name="add_todo_list">Add todo list</string>
     <string name="todo_list_name">Todo list name</string>
     <string name="todo_list_created">Todo list created</string>
-    <string name="note_title">Title</string>
+    <string name="title">Title</string>
     <string name="note_content">Content</string>
     <string name="important_note">Important note</string>
     <string name="edit_note">Edit note</string>
@@ -36,6 +36,11 @@
     <string name="set_reminder">Set reminder</string>
     <string name="cancel">Cancel</string>
 
+    <string name="created">Created %s</string>
+
+    <string name="select_date">Select date</string>
+    <string name="select_time">Select time</string>
+
     <string name="alarm_in_the_morning">In the morning (09:00)</string>
     <string name="alarm_at_afternoon">At afternoon (13:00)</string>
     <string name="alarm_in_the_evening">In the evening (18:00)</string>
@@ -43,4 +48,17 @@
     <string name="alarm_other_time">Other time…</string>
     <string name="hide_without_reminders">Hide notes without reminders</string>
     <string name="cancel_all_reminders">Cancel all reminders</string>
+    <string name="save">Save</string>
+
+    <string name="task_name_cannot_be_empty">Task name cannot be empty</string>
+    <string name="note_added">Note added</string>
+    <string name="note_updated">Note updated</string>
+    <string name="todo_list_added">Todo list added</string>
+    <string name="todo_list_updated">Todo list updated</string>
+    <string name="empty_todo_list_discarded">Empty list discarded</string>
+    <string name="note_content_cannot_be_null">Note content cannot be null</string>
+    <string name="task_added">Task added</string>
+    <string name="task_updated">Task updated</string>
+
+
 </resources>

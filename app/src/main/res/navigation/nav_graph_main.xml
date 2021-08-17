@@ -70,7 +70,6 @@
     <fragment
         android:id="@+id/addEditTodoListFragment"
         android:name="ua.andrii.andrushchenko.justnotes.ui.todolist.addedittodolist.AddEditTodoListFragment"
-        android:label="@string/add_todo_list"
         tools:layout="@layout/fragment_add_edit_todo_list">
         <action
             android:id="@+id/action_addEditTodoListFragment_to_addEditTaskDialog"

@@ -21,22 +21,10 @@
             android:ellipsize="marquee"
             android:maxLines="1"
             android:padding="@dimen/indent_8dp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="I just call" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/txt_reminder_time"
-            style="@style/TextAppearance.JustNotes.Subtitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_bell"
-            android:gravity="center"
-            android:paddingTop="@dimen/indent_8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="15 Jul, 12:00"
-            tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txt_content"
@@ -44,23 +32,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
-            android:maxLines="3"
+            android:maxLines="4"
             android:padding="@dimen/indent_8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txt_title"
             tools:text="To say I love you" />
 
-        <!--<com.google.android.material.chip.Chip
-            android:id="@+id/chip_reminder_date_time"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txt_reminder_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:chipIcon="@drawable/ic_bell"
-            app:iconStartPadding="@dimen/indent_2dp"
+            android:drawableStart="@drawable/ic_bell"
+            android:gravity="center"
+            android:paddingTop="@dimen/indent_8dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txt_content"
-            tools:text="Sat 07 Aug 2021 14:50"
-            tools:visibility="visible" />-->
+            tools:text="15 Jul, 12:00"
+            tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

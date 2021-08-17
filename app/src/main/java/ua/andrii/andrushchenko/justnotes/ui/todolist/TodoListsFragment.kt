@@ -3,6 +3,7 @@ package ua.andrii.andrushchenko.justnotes.ui.todolist
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -17,6 +18,8 @@ import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentTodoListsBinding
 import ua.andrii.andrushchenko.justnotes.domain.TodoList
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_REQUEST
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
 import ua.andrii.andrushchenko.justnotes.utils.setupStaggeredGridLayoutManager
@@ -72,6 +75,11 @@ class TodoListsFragment :
             }
         }
 
+        setFragmentResultListener(ADD_EDIT_TODO_LIST_REQUEST) { _, bundle ->
+            val result = bundle.getInt(ADD_EDIT_TODO_LIST_RESULT)
+            viewModel.onAddEditResult(result)
+        }
+
         viewModel.todoLists.observe(viewLifecycleOwner) {
             todoListsAdapter.submitList(it)
             toggleTextViewEmpty(it.isEmpty())
@@ -103,6 +111,13 @@ class TodoListsFragment :
                             .setAction(getString(R.string.undo)) {
                                 viewModel.onUndoDeleteClicked(event.todoList, event.tasks)
                             }.show()
+                    }
+                    is TodoListsViewModel.TodoListsEvent.ShowTodoListSavedConfirmationMessage -> {
+                        Snackbar.make(
+                            requireView(),
+                            event.msg,
+                            Snackbar.LENGTH_LONG
+                        ).show()
                     }
                 }
             }

@@ -20,6 +20,8 @@ import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentNotesBinding
 import ua.andrii.andrushchenko.justnotes.domain.Note
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_REQUEST
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
 import ua.andrii.andrushchenko.justnotes.utils.setupStaggeredGridLayoutManager
@@ -45,9 +47,7 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
         with(binding) {
             recyclerView.apply {
                 adapter = notesAdapter
-                setupStaggeredGridLayoutManager(
-                    resources.getDimensionPixelSize(R.dimen.indent_8dp)
-                )
+                setupStaggeredGridLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
                 setHasFixedSize(true)
             }
 
@@ -74,8 +74,8 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
             }
         }
 
-        setFragmentResultListener("add_edit_note_request") { _, bundle ->
-            val result = bundle.getInt("add_edit_note_result")
+        setFragmentResultListener(ADD_EDIT_NOTE_REQUEST) { _, bundle ->
+            val result = bundle.getInt(ADD_EDIT_NOTE_RESULT)
             viewModel.onAddEditResult(result)
         }
 
@@ -111,16 +111,17 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
                             requireView(),
                             getString(R.string.note_deleted),
                             Snackbar.LENGTH_LONG
-                        )
-                            .setAction(getString(R.string.undo)) {
-                                viewModel.onUndoDeleteClicked(event.note)
-                            }.show()
+                        ).setAction(getString(R.string.undo)) {
+                            viewModel.onUndoDeleteClicked(event.note)
+                        }.show()
                     }
                     is NotesViewModel.NoteEvent.ShowNoteSavedConfirmationMessage -> {
-                        Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), getString(event.msg), Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                     is NotesViewModel.NoteEvent.NavigateToCancelAllReminders -> {
-                        val direction = NotesFragmentDirections.actionNotesFragmentToCancelAllRemindersDialogFragment()
+                        val direction =
+                            NotesFragmentDirections.actionNotesFragmentToCancelAllRemindersDialogFragment()
                         findNavController().navigate(direction)
                     }
                 }

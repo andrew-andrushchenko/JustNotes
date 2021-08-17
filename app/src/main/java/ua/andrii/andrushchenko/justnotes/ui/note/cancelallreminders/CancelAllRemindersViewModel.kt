@@ -22,7 +22,7 @@ class CancelAllRemindersViewModel @Inject constructor(
         val notesWithReminders = noteDao.getNotesWithReminders()
         for (note in notesWithReminders) {
             reminderHelper.cancelReminder(note.id)
-            notesWithCancelledReminders.add(note.copy(reminderAlarmTimeMillis = -1L))
+            notesWithCancelledReminders.add(note.copy(reminderAlarmTimeMillis = -1L, hasReminder = false))
         }
         noteDao.updateAll(notesWithCancelledReminders)
     }

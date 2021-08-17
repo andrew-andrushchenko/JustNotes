@@ -1,14 +1,16 @@
 package ua.andrii.andrushchenko.justnotes.ui.note
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.note.NoteDao
 import ua.andrii.andrushchenko.justnotes.domain.Note
-import ua.andrii.andrushchenko.justnotes.ui.main.ADD_RESULT_OK
-import ua.andrii.andrushchenko.justnotes.ui.main.EDIT_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.EDIT_RESULT_OK
 import ua.andrii.andrushchenko.justnotes.utils.NotesFilterPreferences
 import ua.andrii.andrushchenko.justnotes.utils.PreferencesManager
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
@@ -93,22 +95,21 @@ class NotesViewModel @Inject constructor(
 
     fun onAddEditResult(result: Int) {
         when (result) {
-            ADD_RESULT_OK -> showNoteSavedConfirmationMessage("Note added")
-            EDIT_RESULT_OK -> showNoteSavedConfirmationMessage("Note updated")
+            ADD_RESULT_OK -> showNoteSavedConfirmationMessage(R.string.note_added)
+            EDIT_RESULT_OK -> showNoteSavedConfirmationMessage(R.string.note_updated)
         }
     }
 
-    private fun showNoteSavedConfirmationMessage(text: String) = viewModelScope.launch {
-        notesEventChannel.send(NoteEvent.ShowNoteSavedConfirmationMessage(text))
+    private fun showNoteSavedConfirmationMessage(@StringRes msg: Int) = viewModelScope.launch {
+        notesEventChannel.send(NoteEvent.ShowNoteSavedConfirmationMessage(msg))
     }
 
     sealed class NoteEvent {
         object NavigateToAddNoteScreen : NoteEvent()
         data class NavigateToEditNoteScreen(val note: Note) : NoteEvent()
         data class ShowUndoDeleteNoteMessage(val note: Note) : NoteEvent()
-        data class ShowNoteSavedConfirmationMessage(val msg: String) : NoteEvent()
+        data class ShowNoteSavedConfirmationMessage(@StringRes val msg: Int) : NoteEvent()
         object NavigateToDeleteAllNotes : NoteEvent()
         object NavigateToCancelAllReminders : NoteEvent()
     }
-
 }

@@ -1,6 +1,7 @@
 package ua.andrii.andrushchenko.justnotes.ui.note.addeditnote
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,10 +9,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.note.NoteDao
 import ua.andrii.andrushchenko.justnotes.domain.Note
-import ua.andrii.andrushchenko.justnotes.ui.main.ADD_RESULT_OK
-import ua.andrii.andrushchenko.justnotes.ui.main.EDIT_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.EDIT_RESULT_OK
 import ua.andrii.andrushchenko.justnotes.utils.DateTimeUtils
 import ua.andrii.andrushchenko.justnotes.utils.ReminderHelper
 import java.util.*
@@ -54,7 +56,7 @@ class AddEditNoteViewModel @Inject constructor(
 
     fun onSaveClicked() {
         if (noteContent.isBlank()) {
-            sendInvalidInputMessage("Content cannot be null")
+            sendInvalidInputMessage(R.string.note_content_cannot_be_null)
             return
         }
 
@@ -63,28 +65,33 @@ class AddEditNoteViewModel @Inject constructor(
                 title = noteTitle,
                 content = noteContent,
                 isUrgent = noteIsUrgent,
-                reminderAlarmTimeMillis = noteReminderAlarmTimeMillis
+                reminderAlarmTimeMillis = noteReminderAlarmTimeMillis,
+                hasReminder = noteHasReminder
             )
-            if (!noteHasReminder) {
-                reminderHelper.cancelReminder(note.id)
-            } else {
+
+            if (noteHasReminder) {
                 if (noteReminderAlarmTimeMillis != note.reminderAlarmTimeMillis) {
                     reminderHelper.cancelReminder(note.id)
                     reminderHelper.setReminder(updatedNote)
                 }
+            } else {
+                reminderHelper.cancelReminder(note.id)
             }
             updateNote(updatedNote)
+
         } else {
             val newNote = Note(
                 title = noteTitle,
                 content = noteContent,
                 isUrgent = noteIsUrgent,
-                reminderAlarmTimeMillis = noteReminderAlarmTimeMillis
+                reminderAlarmTimeMillis = noteReminderAlarmTimeMillis,
+                hasReminder = noteHasReminder
             )
             if (noteHasReminder) {
                 reminderHelper.setReminder(newNote)
             }
             createNote(newNote)
+
         }
     }
 
@@ -100,8 +107,7 @@ class AddEditNoteViewModel @Inject constructor(
         addEditNoteEventChannel.send(AddEditNoteEvent.NavigateBackWithResult(EDIT_RESULT_OK))
     }
 
-    @Suppress("SameParameterValue")
-    private fun sendInvalidInputMessage(msg: String) = viewModelScope.launch {
+    private fun sendInvalidInputMessage(@StringRes msg: Int) = viewModelScope.launch {
         addEditNoteEventChannel.send(AddEditNoteEvent.ShowInvalidInputMessage(msg))
     }
 
@@ -156,7 +162,7 @@ class AddEditNoteViewModel @Inject constructor(
     }
 
     sealed class AddEditNoteEvent {
-        data class ShowInvalidInputMessage(val msg: String) : AddEditNoteEvent()
+        data class ShowInvalidInputMessage(@StringRes val msg: Int) : AddEditNoteEvent()
         data class NavigateBackWithResult(val result: Int) : AddEditNoteEvent()
     }
 

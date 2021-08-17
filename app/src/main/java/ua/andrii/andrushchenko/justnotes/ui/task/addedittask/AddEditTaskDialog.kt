@@ -1,6 +1,5 @@
 package ua.andrii.andrushchenko.justnotes.ui.task.addedittask
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
@@ -15,8 +14,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.BottomSheetAddEditTaskBinding
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseBottomSheetDialogFragment
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TASK_REQUEST
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TASK_RESULT
 
 @AndroidEntryPoint
 class AddEditTaskDialog :
@@ -29,31 +31,44 @@ class AddEditTaskDialog :
 
         with(binding) {
             addEditTaskTitle.text = viewModel.title
-            editTextTaskNameInputLayout.editText?.setText(viewModel.taskName)
-            checkBoxImportant.isChecked = viewModel.taskImportance
-            checkBoxImportant.jumpDrawablesToCurrentState()
-            textViewDateCreated.isVisible = viewModel.task != null
-            @SuppressLint("SetTextI18n")
-            textViewDateCreated.text = "Created: ${viewModel.task?.createdDateFormatted}"
+            editTextTaskNameInputLayout.editText?.apply {
+                setText(viewModel.taskName)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
 
-            editTextTaskNameInputLayout.editText?.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                        viewModel.taskName = s.toString()
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {}
+                })
+            }
+
+            checkBoxImportant.apply {
+                isChecked = viewModel.taskImportance
+                jumpDrawablesToCurrentState()
+                setOnCheckedChangeListener { _, isChecked ->
+                    viewModel.taskImportance = isChecked
                 }
+            }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    viewModel.taskName = s.toString()
-                }
 
-                override fun afterTextChanged(s: Editable?) {}
-            })
-
-            checkBoxImportant.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.taskImportance = isChecked
+            textViewDateCreated.apply {
+                isVisible = viewModel.task != null
+                text = getString(
+                    R.string.created, viewModel.task?.createdDateFormatted
+                )
             }
 
             btnDone.setOnClickListener {
@@ -65,13 +80,13 @@ class AddEditTaskDialog :
             viewModel.addEditTaskEvent.collect { event ->
                 when (event) {
                     is AddEditTaskViewModel.AddEditTaskEvent.ShowInvalidInputMessage -> {
-                        Toast.makeText(requireContext(), event.msg, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(event.msg), Toast.LENGTH_LONG).show()
                     }
                     is AddEditTaskViewModel.AddEditTaskEvent.NavigateBackWithResult -> {
                         binding.editTextTaskNameInputLayout.clearFocus()
                         setFragmentResult(
-                            "add_edit_request",
-                            bundleOf("add_edit_result" to event.result)
+                            ADD_EDIT_TASK_REQUEST,
+                            bundleOf(ADD_EDIT_TASK_RESULT to event.result)
                         )
                         findNavController().popBackStack()
                     }

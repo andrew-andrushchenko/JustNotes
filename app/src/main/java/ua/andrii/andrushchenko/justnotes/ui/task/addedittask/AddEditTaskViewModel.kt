@@ -1,5 +1,6 @@
 package ua.andrii.andrushchenko.justnotes.ui.task.addedittask
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,10 +8,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.task.TaskDao
 import ua.andrii.andrushchenko.justnotes.domain.Task
-import ua.andrii.andrushchenko.justnotes.ui.main.ADD_RESULT_OK
-import ua.andrii.andrushchenko.justnotes.ui.main.EDIT_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.EDIT_RESULT_OK
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +44,7 @@ class AddEditTaskViewModel @Inject constructor(
 
     fun onSaveClicked() {
         if (taskName.isBlank()) {
-            sendInvalidInputMessage("Name cannot be empty")
+            sendInvalidInputMessage(R.string.task_name_cannot_be_empty)
             return
         }
 
@@ -65,14 +67,12 @@ class AddEditTaskViewModel @Inject constructor(
         addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(EDIT_RESULT_OK))
     }
 
-    @Suppress("SameParameterValue")
-    private fun sendInvalidInputMessage(msg: String) = viewModelScope.launch {
+    private fun sendInvalidInputMessage(@StringRes msg: Int) = viewModelScope.launch {
         addEditTaskEventChannel.send(AddEditTaskEvent.ShowInvalidInputMessage(msg))
     }
 
     sealed class AddEditTaskEvent {
-        data class ShowInvalidInputMessage(val msg: String) : AddEditTaskEvent()
+        data class ShowInvalidInputMessage(@StringRes val msg: Int) : AddEditTaskEvent()
         data class NavigateBackWithResult(val result: Int) : AddEditTaskEvent()
     }
-
 }

@@ -1,14 +1,19 @@
 package ua.andrii.andrushchenko.justnotes.ui.todolist
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.task.TaskDao
 import ua.andrii.andrushchenko.justnotes.data.todolist.TodoListDao
 import ua.andrii.andrushchenko.justnotes.domain.Task
 import ua.andrii.andrushchenko.justnotes.domain.TodoList
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_RESULT_FAIL
+import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_RESULT_OK
+import ua.andrii.andrushchenko.justnotes.utils.Constants.EDIT_RESULT_OK
 import ua.andrii.andrushchenko.justnotes.utils.PreferencesManager
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import javax.inject.Inject
@@ -81,10 +86,22 @@ class TodoListsViewModel @Inject constructor(
         tasksDao.deleteAll()
     }
 
+    fun onAddEditResult(result: Int) {
+        when (result) {
+            ADD_RESULT_OK -> showTodoListSavedConfirmationMessage(R.string.todo_list_added)
+            ADD_RESULT_FAIL -> showTodoListSavedConfirmationMessage(R.string.empty_todo_list_discarded)
+            EDIT_RESULT_OK -> showTodoListSavedConfirmationMessage(R.string.todo_list_updated)
+        }
+    }
+
+    private fun showTodoListSavedConfirmationMessage(@StringRes msg: Int) = viewModelScope.launch {
+        todoListsEventChannel.send(TodoListsEvent.ShowTodoListSavedConfirmationMessage(msg))
+    }
+
     sealed class TodoListsEvent {
         data class NavigateToCreateTodoListScreen(val todoList: TodoList) : TodoListsEvent()
         data class NavigateToEditTodoListScreen(val todoList: TodoList) : TodoListsEvent()
+        data class ShowTodoListSavedConfirmationMessage(@StringRes val msg: Int) : TodoListsEvent()
         data class ShowUndoDeleteTaskMessage(val todoList: TodoList, val tasks: List<Task>) : TodoListsEvent()
     }
-
 }
