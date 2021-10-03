@@ -28,13 +28,13 @@ class AddEditNoteViewModel @Inject constructor(
 
     val note = state.get<Note>("note")
 
-    var noteTitle = state.get<String>("noteTitle") ?: note?.title ?: ""
+    var noteTitle = state.get<String>("noteTitle") ?: note?.title.orEmpty()
         set(value) {
             field = value
             state.set("noteTitle", value)
         }
 
-    var noteContent = state.get<String>("noteContent") ?: note?.content ?: ""
+    var noteContent = state.get<String>("noteContent") ?: note?.content.orEmpty()
         set(value) {
             field = value
             state.set("noteContent", value)

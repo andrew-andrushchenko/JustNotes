@@ -16,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentTodoListsBinding
-import ua.andrii.andrushchenko.justnotes.domain.TodoList
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_REQUEST
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_RESULT
@@ -35,20 +34,16 @@ class TodoListsFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val todoListsAdapter = TodoListsAdapter(object : TodoListsAdapter.OnItemClickListener {
-            override fun onItemClick(todoList: TodoList) {
-                viewModel.onTodoListSelected(todoList)
-            }
-        })
+        val todoListsAdapter = TodoListsAdapter { todoList ->
+            viewModel.onTodoListSelected(todoList)
+        }
 
         setupToolbar()
 
         with(binding) {
             recyclerView.apply {
                 adapter = todoListsAdapter
-                setupStaggeredGridLayoutManager(
-                    resources.getDimensionPixelSize(R.dimen.indent_8dp)
-                )
+                setupStaggeredGridLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
                 setHasFixedSize(true)
             }
 

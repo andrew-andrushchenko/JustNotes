@@ -1,8 +1,6 @@
 package ua.andrii.andrushchenko.justnotes.ui.note.addeditnote
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -26,6 +24,7 @@ import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_REQUEST
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.ReminderHelper
+import ua.andrii.andrushchenko.justnotes.utils.setOnTextChangedListener
 import java.util.*
 
 @AndroidEntryPoint
@@ -42,49 +41,15 @@ class AddEditNoteFragment :
         with(binding) {
             notesTitleEditText.apply {
                 setText(viewModel.noteTitle)
-                addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        charSequence: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-                        viewModel.noteTitle = charSequence.toString()
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {}
-                })
+                setOnTextChangedListener {
+                    viewModel.noteTitle = it
+                }
             }
             notesContentEdittext.apply {
                 setText(viewModel.noteContent)
-                addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-                        viewModel.noteContent = s.toString()
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {}
-                })
+                setOnTextChangedListener {
+                    viewModel.noteContent = it
+                }
             }
 
             checkBoxImportant.isChecked = viewModel.noteIsUrgent

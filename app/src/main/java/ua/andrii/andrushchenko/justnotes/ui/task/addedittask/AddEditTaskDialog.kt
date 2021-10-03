@@ -2,8 +2,6 @@ package ua.andrii.andrushchenko.justnotes.ui.task.addedittask
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.core.os.bundleOf
@@ -19,6 +17,7 @@ import ua.andrii.andrushchenko.justnotes.databinding.BottomSheetAddEditTaskBindi
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseBottomSheetDialogFragment
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TASK_REQUEST
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TASK_RESULT
+import ua.andrii.andrushchenko.justnotes.utils.setOnTextChangedListener
 
 @AndroidEntryPoint
 class AddEditTaskDialog :
@@ -33,26 +32,9 @@ class AddEditTaskDialog :
             addEditTaskTitle.text = viewModel.title
             editTextTaskNameInputLayout.editText?.apply {
                 setText(viewModel.taskName)
-                addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-                        viewModel.taskName = s.toString()
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {}
-                })
+                setOnTextChangedListener {
+                    viewModel.taskName = it
+                }
             }
 
             checkBoxImportant.apply {

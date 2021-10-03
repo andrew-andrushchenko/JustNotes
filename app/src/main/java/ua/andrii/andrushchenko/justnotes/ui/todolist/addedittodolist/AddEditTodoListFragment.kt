@@ -1,8 +1,6 @@
 package ua.andrii.andrushchenko.justnotes.ui.todolist.addedittodolist
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
@@ -32,6 +30,7 @@ import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_REQU
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_TODO_LIST_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
+import ua.andrii.andrushchenko.justnotes.utils.setOnTextChangedListener
 import ua.andrii.andrushchenko.justnotes.utils.setupLinearLayoutManager
 
 @AndroidEntryPoint
@@ -61,20 +60,9 @@ class AddEditTodoListFragment :
         with(binding) {
             todoListTitleEdittext.apply {
                 setText(viewModel.newTodoListTitle)
-                addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                    }
-
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        viewModel.newTodoListTitle = p0?.toString() ?: ""
-                    }
-
-                    override fun afterTextChanged(p0: Editable?) {
-
-                    }
-                })
-
+                setOnTextChangedListener {
+                    viewModel.newTodoListTitle = it
+                }
             }
 
             recyclerView.apply {
@@ -148,7 +136,8 @@ class AddEditTodoListFragment :
                         findNavController().navigate(direction)
                     }
                     is AddEditTodoListViewModel.AddEditTodoListEvent.ShowTaskSavedConfirmationMessage -> {
-                        Snackbar.make(requireView(), getString(event.msg), Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), getString(event.msg), Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                     is AddEditTodoListViewModel.AddEditTodoListEvent.NavigateToDeleteAllCompletedInTodoListScreen -> {
                         val direction =

@@ -21,13 +21,13 @@ class AddEditTaskViewModel @Inject constructor(
     private val state: SavedStateHandle
 ) : ViewModel() {
 
-    val title = state.get<String>("title") ?: "Create task"
+    val title = state.get<String>("title").orEmpty()
 
     val task = state.get<Task>("task")
 
     private val todoListId = state.get<Int>("todoListId") ?: 0
 
-    var taskName = state.get<String>("taskName") ?: task?.name ?: ""
+    var taskName = state.get<String>("taskName") ?: task?.name.orEmpty()
         set(value) {
             field = value
             state.set("taskName", value)

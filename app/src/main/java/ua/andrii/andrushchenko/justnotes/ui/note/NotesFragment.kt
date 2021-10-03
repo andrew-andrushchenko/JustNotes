@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentNotesBinding
-import ua.andrii.andrushchenko.justnotes.domain.Note
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_REQUEST
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_RESULT
@@ -36,11 +35,9 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val notesAdapter = NotesAdapter(object : NotesAdapter.OnItemClickListener {
-            override fun onItemClick(note: Note) {
-                viewModel.onNoteSelected(note)
-            }
-        })
+        val notesAdapter = NotesAdapter { note ->
+            viewModel.onNoteSelected(note)
+        }
 
         setupToolbar()
 

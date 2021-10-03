@@ -8,9 +8,9 @@ import ua.andrii.andrushchenko.justnotes.databinding.ItemTodoListBinding
 import ua.andrii.andrushchenko.justnotes.domain.TodoList
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseListAdapter
 
-class TodoListsAdapter(private val listener: OnItemClickListener) : BaseListAdapter<TodoList>(
-    TODO_LIST_COMPARATOR
-) {
+class TodoListsAdapter(
+    private val listener: (todoList: TodoList) -> Unit
+) : BaseListAdapter<TodoList>(TODO_LIST_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val binding = ItemTodoListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -25,7 +25,7 @@ class TodoListsAdapter(private val listener: OnItemClickListener) : BaseListAdap
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val todoList = getItem(position)
-                    listener.onItemClick(todoList)
+                    listener.invoke(todoList)
                 }
             }
         }
@@ -33,10 +33,6 @@ class TodoListsAdapter(private val listener: OnItemClickListener) : BaseListAdap
         override fun bind(entity: TodoList) {
             binding.todoListTitle.text = entity.title
         }
-    }
-
-    interface OnItemClickListener {
-        fun onItemClick(todoList: TodoList)
     }
 
     companion object {

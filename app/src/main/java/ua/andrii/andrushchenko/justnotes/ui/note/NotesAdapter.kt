@@ -11,9 +11,9 @@ import ua.andrii.andrushchenko.justnotes.domain.Note
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseListAdapter
 import ua.andrii.andrushchenko.justnotes.utils.DateTimeUtils
 
-class NotesAdapter(private val listener: OnItemClickListener) : BaseListAdapter<Note>(
-    NOTES_COMPARATOR
-) {
+class NotesAdapter(
+    private val listener: (note: Note) -> Unit
+) : BaseListAdapter<Note>(NOTES_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,7 +26,7 @@ class NotesAdapter(private val listener: OnItemClickListener) : BaseListAdapter<
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val note = getItem(position)
-                    listener.onItemClick(note)
+                    listener(note)
                 }
             }
         }
@@ -53,10 +53,6 @@ class NotesAdapter(private val listener: OnItemClickListener) : BaseListAdapter<
                 }
             }
         }
-    }
-
-    interface OnItemClickListener {
-        fun onItemClick(note: Note)
     }
 
     companion object {
