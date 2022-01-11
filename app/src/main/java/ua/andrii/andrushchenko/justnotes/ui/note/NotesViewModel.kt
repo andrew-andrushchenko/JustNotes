@@ -30,10 +30,8 @@ class NotesViewModel @Inject constructor(
             preferences[PreferencesManager.PreferencesKeys.NOTES_SORT_ORDER]
                 ?: SortOrder.BY_NAME.name
         )
-        val hideNotImportant =
-            preferences[PreferencesManager.PreferencesKeys.NOTES_HIDE_NOT_IMPORTANT] ?: false
-        val hideNoReminders =
-            preferences[PreferencesManager.PreferencesKeys.NOTES_HIDE_WITHOUT_REMINDERS] ?: false
+        val hideNotImportant = preferences[PreferencesManager.PreferencesKeys.NOTES_HIDE_NOT_IMPORTANT] ?: false
+        val hideNoReminders = preferences[PreferencesManager.PreferencesKeys.NOTES_HIDE_WITHOUT_REMINDERS] ?: false
         NotesFilterPreferences(sortOrder, hideNotImportant, hideNoReminders)
     }
 

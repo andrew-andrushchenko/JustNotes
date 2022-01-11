@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
@@ -23,7 +22,7 @@ import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_REQUEST
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.SortOrder
 import ua.andrii.andrushchenko.justnotes.utils.onQueryTextChanged
-import ua.andrii.andrushchenko.justnotes.utils.setupStaggeredGridLayoutManager
+import ua.andrii.andrushchenko.justnotes.utils.setupLinearLayoutManager
 
 @AndroidEntryPoint
 class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::inflate) {
@@ -44,7 +43,7 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
         with(binding) {
             recyclerView.apply {
                 adapter = notesAdapter
-                setupStaggeredGridLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
+                setupLinearLayoutManager(resources.getDimensionPixelSize(R.dimen.indent_8dp))
                 setHasFixedSize(true)
             }
 
