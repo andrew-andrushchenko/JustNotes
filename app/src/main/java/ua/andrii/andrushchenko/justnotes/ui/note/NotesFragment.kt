@@ -78,9 +78,11 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.notes.collect {
-                notesAdapter.submitList(it)
-                toggleTextViewEmpty(it.isEmpty())
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.notes.collect {
+                    notesAdapter.submitList(it)
+                    toggleTextViewEmpty(it.isEmpty())
+                }
             }
         }
 
