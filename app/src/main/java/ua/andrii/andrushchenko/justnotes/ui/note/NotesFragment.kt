@@ -5,7 +5,9 @@ import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -75,50 +77,54 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
             viewModel.onAddEditResult(result)
         }
 
-        viewModel.notes.observe(viewLifecycleOwner) {
-            notesAdapter.submitList(it)
-            toggleTextViewEmpty(it.isEmpty())
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.notes.collect {
+                notesAdapter.submitList(it)
+                toggleTextViewEmpty(it.isEmpty())
+            }
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.notesEvent.collect { event ->
-                when (event) {
-                    is NotesViewModel.NoteEvent.NavigateToAddNoteScreen -> {
-                        val direction =
-                            NotesFragmentDirections.actionNotesFragmentToAddEditNoteFragment(
-                                note = null,
-                                title = getString(R.string.add_note)
-                            )
-                        findNavController().navigate(direction)
-                    }
-                    is NotesViewModel.NoteEvent.NavigateToEditNoteScreen -> {
-                        val direction =
-                            NotesFragmentDirections.actionNotesFragmentToAddEditNoteFragment(
-                                note = event.note,
-                                title = getString(R.string.edit_note)
-                            )
-                        findNavController().navigate(direction)
-                    }
-                    is NotesViewModel.NoteEvent.NavigateToDeleteAllNotes -> {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.notesEvent.collect { event ->
+                    when (event) {
+                        is NotesViewModel.NoteEvent.NavigateToAddNoteScreen -> {
+                            val direction =
+                                NotesFragmentDirections.actionNotesFragmentToAddEditNoteFragment(
+                                    note = null,
+                                    title = getString(R.string.add_note)
+                                )
+                            findNavController().navigate(direction)
+                        }
+                        is NotesViewModel.NoteEvent.NavigateToEditNoteScreen -> {
+                            val direction =
+                                NotesFragmentDirections.actionNotesFragmentToAddEditNoteFragment(
+                                    note = event.note,
+                                    title = getString(R.string.edit_note)
+                                )
+                            findNavController().navigate(direction)
+                        }
+                        is NotesViewModel.NoteEvent.NavigateToDeleteAllNotes -> {
 
-                    }
-                    is NotesViewModel.NoteEvent.ShowUndoDeleteNoteMessage -> {
-                        Snackbar.make(
-                            requireView(),
-                            getString(R.string.note_deleted),
-                            Snackbar.LENGTH_LONG
-                        ).setAction(getString(R.string.undo)) {
-                            viewModel.onUndoDeleteClicked(event.note)
-                        }.show()
-                    }
-                    is NotesViewModel.NoteEvent.ShowNoteSavedConfirmationMessage -> {
-                        Snackbar.make(requireView(), getString(event.msg), Snackbar.LENGTH_SHORT)
-                            .show()
-                    }
-                    is NotesViewModel.NoteEvent.NavigateToCancelAllReminders -> {
-                        val direction =
-                            NotesFragmentDirections.actionNotesFragmentToCancelAllRemindersDialogFragment()
-                        findNavController().navigate(direction)
+                        }
+                        is NotesViewModel.NoteEvent.ShowUndoDeleteNoteMessage -> {
+                            Snackbar.make(
+                                requireView(),
+                                getString(R.string.note_deleted),
+                                Snackbar.LENGTH_LONG
+                            ).setAction(getString(R.string.undo)) {
+                                viewModel.onUndoDeleteClicked(event.note)
+                            }.show()
+                        }
+                        is NotesViewModel.NoteEvent.ShowNoteSavedConfirmationMessage -> {
+                            Snackbar.make(requireView(), getString(event.msg), Snackbar.LENGTH_SHORT)
+                                .show()
+                        }
+                        is NotesViewModel.NoteEvent.NavigateToCancelAllReminders -> {
+                            val direction =
+                                NotesFragmentDirections.actionNotesFragmentToCancelAllRemindersDialogFragment()
+                            findNavController().navigate(direction)
+                        }
                     }
                 }
             }
@@ -140,14 +146,14 @@ class NotesFragment : BaseFragment<FragmentNotesBinding>(FragmentNotesBinding::i
             val searchItem = menu.findItem(R.id.action_notes_search)
             searchView = searchItem.actionView as SearchView
 
-            val pendingQuery = viewModel.notesSearchQuery.value
-            if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+            val pendingQuery = viewModel.searchQuery.value
+            if (pendingQuery.isNotEmpty()) {
                 searchItem.expandActionView()
                 searchView.setQuery(pendingQuery, false)
             }
 
             searchView.onQueryTextChanged {
-                viewModel.notesSearchQuery.value = it
+                viewModel.onQueryTextChanged(it)
             }
 
             viewLifecycleOwner.lifecycleScope.launch {

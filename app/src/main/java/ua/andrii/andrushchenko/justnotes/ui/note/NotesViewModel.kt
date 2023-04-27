@@ -1,10 +1,22 @@
 package ua.andrii.andrushchenko.justnotes.ui.note
 
 import androidx.annotation.StringRes
-import androidx.lifecycle.*
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.note.NoteDao
@@ -20,10 +32,11 @@ import javax.inject.Inject
 class NotesViewModel @Inject constructor(
     private val noteDao: NoteDao,
     private val preferencesManager: PreferencesManager,
-    state: SavedStateHandle
+    private val state: SavedStateHandle
 ) : ViewModel() {
 
-    val notesSearchQuery = state.getLiveData("notesSearchQuery", "")
+    private val _searchQuery: MutableStateFlow<String> = MutableStateFlow(state.get<String>("notesSearchQuery").orEmpty())
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val preferencesFlow = preferencesManager.preferencesFlow.map { preferences ->
         val sortOrder = SortOrder.valueOf(
@@ -39,7 +52,7 @@ class NotesViewModel @Inject constructor(
     val notesEvent = notesEventChannel.receiveAsFlow()
 
     private val notesFlow: Flow<List<Note>> = combine(
-        notesSearchQuery.asFlow(),
+        _searchQuery,
         preferencesFlow
     ) { searchQuery, notesFilterPreferences ->
         Pair(searchQuery, notesFilterPreferences)
@@ -52,7 +65,11 @@ class NotesViewModel @Inject constructor(
         )
     }
 
-    val notes: LiveData<List<Note>> = notesFlow.asLiveData()
+    val notes: StateFlow<List<Note>> = notesFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateNotesSortOrder(sortOrder)
@@ -96,6 +113,11 @@ class NotesViewModel @Inject constructor(
             ADD_RESULT_OK -> showNoteSavedConfirmationMessage(R.string.note_added)
             EDIT_RESULT_OK -> showNoteSavedConfirmationMessage(R.string.note_updated)
         }
+    }
+
+    fun onQueryTextChanged(query: String) {
+        _searchQuery.update { query }
+        state["notesSearchQuery"] = query
     }
 
     private fun showNoteSavedConfirmationMessage(@StringRes msg: Int) = viewModelScope.launch {
