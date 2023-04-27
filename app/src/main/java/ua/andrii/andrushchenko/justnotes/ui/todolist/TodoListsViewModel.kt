@@ -120,10 +120,10 @@ class TodoListsViewModel @Inject constructor(
         todoListsEventChannel.send(TodoListsEvent.ShowTodoListSavedConfirmationMessage(msg))
     }
 
-    sealed class TodoListsEvent {
-        data class NavigateToCreateTodoListScreen(val todoList: TodoList) : TodoListsEvent()
-        data class NavigateToEditTodoListScreen(val todoList: TodoList) : TodoListsEvent()
-        data class ShowTodoListSavedConfirmationMessage(@StringRes val msg: Int) : TodoListsEvent()
-        data class ShowUndoDeleteTaskMessage(val todoList: TodoList, val tasks: List<Task>) : TodoListsEvent()
+    sealed interface TodoListsEvent {
+        data class NavigateToCreateTodoListScreen(val todoList: TodoList) : TodoListsEvent
+        data class NavigateToEditTodoListScreen(val todoList: TodoList) : TodoListsEvent
+        data class ShowTodoListSavedConfirmationMessage(@StringRes val msg: Int) : TodoListsEvent
+        data class ShowUndoDeleteTaskMessage(val todoList: TodoList, val tasks: List<Task>) : TodoListsEvent
     }
 }

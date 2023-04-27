@@ -161,9 +161,9 @@ class AddEditNoteViewModel @Inject constructor(
         reminderHelper.setBootCompletedBroadcastReceiverState(shouldEnable = notesWithReminders.isNotEmpty())
     }
 
-    sealed class AddEditNoteEvent {
-        data class ShowInvalidInputMessage(@StringRes val msg: Int) : AddEditNoteEvent()
-        data class NavigateBackWithResult(val result: Int) : AddEditNoteEvent()
+    sealed interface AddEditNoteEvent {
+        data class ShowInvalidInputMessage(@StringRes val msg: Int) : AddEditNoteEvent
+        data class NavigateBackWithResult(val result: Int) : AddEditNoteEvent
     }
 
     companion object {

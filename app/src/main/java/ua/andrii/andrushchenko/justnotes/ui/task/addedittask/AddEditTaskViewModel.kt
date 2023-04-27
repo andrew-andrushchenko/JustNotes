@@ -71,8 +71,8 @@ class AddEditTaskViewModel @Inject constructor(
         addEditTaskEventChannel.send(AddEditTaskEvent.ShowInvalidInputMessage(msg))
     }
 
-    sealed class AddEditTaskEvent {
-        data class ShowInvalidInputMessage(@StringRes val msg: Int) : AddEditTaskEvent()
-        data class NavigateBackWithResult(val result: Int) : AddEditTaskEvent()
+    sealed interface AddEditTaskEvent {
+        data class ShowInvalidInputMessage(@StringRes val msg: Int) : AddEditTaskEvent
+        data class NavigateBackWithResult(val result: Int) : AddEditTaskEvent
     }
 }

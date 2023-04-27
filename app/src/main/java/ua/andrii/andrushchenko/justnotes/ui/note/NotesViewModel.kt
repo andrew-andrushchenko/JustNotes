@@ -124,12 +124,12 @@ class NotesViewModel @Inject constructor(
         notesEventChannel.send(NoteEvent.ShowNoteSavedConfirmationMessage(msg))
     }
 
-    sealed class NoteEvent {
-        object NavigateToAddNoteScreen : NoteEvent()
-        data class NavigateToEditNoteScreen(val note: Note) : NoteEvent()
-        data class ShowUndoDeleteNoteMessage(val note: Note) : NoteEvent()
-        data class ShowNoteSavedConfirmationMessage(@StringRes val msg: Int) : NoteEvent()
-        object NavigateToDeleteAllNotes : NoteEvent()
-        object NavigateToCancelAllReminders : NoteEvent()
+    sealed interface NoteEvent {
+        object NavigateToAddNoteScreen : NoteEvent
+        data class NavigateToEditNoteScreen(val note: Note) : NoteEvent
+        data class ShowUndoDeleteNoteMessage(val note: Note) : NoteEvent
+        data class ShowNoteSavedConfirmationMessage(@StringRes val msg: Int) : NoteEvent
+        object NavigateToDeleteAllNotes : NoteEvent
+        object NavigateToCancelAllReminders : NoteEvent
     }
 }
