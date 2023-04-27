@@ -1,10 +1,22 @@
 package ua.andrii.andrushchenko.justnotes.ui.todolist
 
 import androidx.annotation.StringRes
-import androidx.lifecycle.*
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.task.TaskDao
@@ -23,10 +35,11 @@ class TodoListsViewModel @Inject constructor(
     private val todoListDao: TodoListDao,
     private val tasksDao: TaskDao,
     private val preferencesManager: PreferencesManager,
-    state: SavedStateHandle
+    private val state: SavedStateHandle
 ) : ViewModel() {
 
-    val todoListsSearchQuery = state.getLiveData("todoListsSearchQuery", "")
+    private val _searchQuery: MutableStateFlow<String> = MutableStateFlow(state.get<String>("todoListsSearchQuery").orEmpty())
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val preferencesFlow = preferencesManager.preferencesFlow.map { preferences ->
         SortOrder.valueOf(
@@ -39,7 +52,7 @@ class TodoListsViewModel @Inject constructor(
     val todoListsEvent = todoListsEventChannel.receiveAsFlow()
 
     private val todoListsFlow: Flow<List<TodoList>> = combine(
-        todoListsSearchQuery.asFlow(),
+        _searchQuery,
         preferencesFlow
     ) { query, sortOrder ->
         Pair(query, sortOrder)
@@ -47,7 +60,11 @@ class TodoListsViewModel @Inject constructor(
         todoListDao.getTodoLists(query, sortOrder)
     }
 
-    val todoLists: LiveData<List<TodoList>> = todoListsFlow.asLiveData()
+    val todoLists: StateFlow<List<TodoList>> = todoListsFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateTodoListsSortOrder(sortOrder)
@@ -92,6 +109,11 @@ class TodoListsViewModel @Inject constructor(
             ADD_RESULT_FAIL -> showTodoListSavedConfirmationMessage(R.string.empty_todo_list_discarded)
             EDIT_RESULT_OK -> showTodoListSavedConfirmationMessage(R.string.todo_list_updated)
         }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.update { query }
+        state["todoListsSearchQuery"] = query
     }
 
     private fun showTodoListSavedConfirmationMessage(@StringRes msg: Int) = viewModelScope.launch {

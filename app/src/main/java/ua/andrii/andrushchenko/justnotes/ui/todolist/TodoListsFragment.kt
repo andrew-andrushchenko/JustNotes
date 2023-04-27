@@ -5,7 +5,9 @@ import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -13,7 +15,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentTodoListsBinding
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
@@ -75,44 +77,50 @@ class TodoListsFragment :
             viewModel.onAddEditResult(result)
         }
 
-        viewModel.todoLists.observe(viewLifecycleOwner) {
-            todoListsAdapter.submitList(it)
-            toggleTextViewEmpty(it.isEmpty())
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.todoLists.collect {
+                    todoListsAdapter.submitList(it)
+                    toggleTextViewEmpty(it.isEmpty())
+                }
+            }
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.todoListsEvent.collect { event ->
-                when (event) {
-                    is TodoListsViewModel.TodoListsEvent.NavigateToCreateTodoListScreen -> {
-                        val direction =
-                            TodoListsFragmentDirections.actionTodoListsFragmentToAddEditTodoListFragment(
-                                todoList = event.todoList
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.todoListsEvent.collect { event ->
+                    when (event) {
+                        is TodoListsViewModel.TodoListsEvent.NavigateToCreateTodoListScreen -> {
+                            val direction =
+                                TodoListsFragmentDirections.actionTodoListsFragmentToAddEditTodoListFragment(
+                                    todoList = event.todoList
+                                )
+                            findNavController().navigate(direction)
+                        }
+                        is TodoListsViewModel.TodoListsEvent.NavigateToEditTodoListScreen -> {
+                            val direction =
+                                TodoListsFragmentDirections.actionTodoListsFragmentToAddEditTodoListFragment(
+                                    todoList = event.todoList
+                                )
+                            findNavController().navigate(direction)
+                        }
+                        is TodoListsViewModel.TodoListsEvent.ShowUndoDeleteTaskMessage -> {
+                            Snackbar.make(
+                                requireView(),
+                                getString(R.string.todo_list_deleted),
+                                Snackbar.LENGTH_LONG
                             )
-                        findNavController().navigate(direction)
-                    }
-                    is TodoListsViewModel.TodoListsEvent.NavigateToEditTodoListScreen -> {
-                        val direction =
-                            TodoListsFragmentDirections.actionTodoListsFragmentToAddEditTodoListFragment(
-                                todoList = event.todoList
-                            )
-                        findNavController().navigate(direction)
-                    }
-                    is TodoListsViewModel.TodoListsEvent.ShowUndoDeleteTaskMessage -> {
-                        Snackbar.make(
-                            requireView(),
-                            getString(R.string.todo_list_deleted),
-                            Snackbar.LENGTH_LONG
-                        )
-                            .setAction(getString(R.string.undo)) {
-                                viewModel.onUndoDeleteClicked(event.todoList, event.tasks)
-                            }.show()
-                    }
-                    is TodoListsViewModel.TodoListsEvent.ShowTodoListSavedConfirmationMessage -> {
-                        Snackbar.make(
-                            requireView(),
-                            event.msg,
-                            Snackbar.LENGTH_LONG
-                        ).show()
+                                .setAction(getString(R.string.undo)) {
+                                    viewModel.onUndoDeleteClicked(event.todoList, event.tasks)
+                                }.show()
+                        }
+                        is TodoListsViewModel.TodoListsEvent.ShowTodoListSavedConfirmationMessage -> {
+                            Snackbar.make(
+                                requireView(),
+                                event.msg,
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
             }
@@ -134,14 +142,14 @@ class TodoListsFragment :
             val searchItem = menu.findItem(R.id.action_todo_lists_search)
             searchView = searchItem.actionView as SearchView
 
-            val pendingQuery = viewModel.todoListsSearchQuery.value
-            if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+            val pendingQuery = viewModel.searchQuery.value
+            if (pendingQuery.isNotEmpty()) {
                 searchItem.expandActionView()
                 searchView.setQuery(pendingQuery, false)
             }
 
             searchView.onQueryTextChanged {
-                viewModel.todoListsSearchQuery.value = it
+                viewModel.onSearchQueryChanged(it)
             }
 
             setOnMenuItemClickListener { item ->
