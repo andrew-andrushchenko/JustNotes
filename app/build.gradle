@@ -6,13 +6,13 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion '31.0.0'
+    compileSdk rootProject.compileSdkVersion
 
     defaultConfig {
         applicationId "ua.andrii.andrushchenko.justnotes"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
+
         versionCode 1
         versionName "1.0"
 
@@ -70,7 +70,6 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-compiler:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hiltViewModels"
     implementation "androidx.hilt:hilt-navigation-fragment:$hiltNavigationFragmentVersion"
 
     //Room
@@ -86,7 +85,7 @@ dependencies {
     implementation "androidx.hilt:hilt-work:$hiltWorkVersion"
     kapt "androidx.hilt:hilt-compiler:$hiltWorkVersion"
 
-    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
 
     // Tests
     testImplementation "junit:junit:$junitVersion"
