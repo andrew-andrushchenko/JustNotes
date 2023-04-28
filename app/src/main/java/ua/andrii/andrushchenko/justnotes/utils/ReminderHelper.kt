@@ -6,6 +6,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import ua.andrii.andrushchenko.justnotes.broadcast.BootCompletedReceiver
 import ua.andrii.andrushchenko.justnotes.broadcast.ReminderReceiver
@@ -29,11 +31,26 @@ class ReminderHelper(private val context: Context) {
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                note.reminderAlarmTimeMillis,
-                pendingIntent
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                when {
+                    alarmManager.canScheduleExactAlarms() -> {
+                        alarmManager.setExact(
+                            AlarmManager.RTC_WAKEUP,
+                            note.reminderAlarmTimeMillis,
+                            pendingIntent
+                        )
+                    }
+                    else -> {
+                        context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+                    }
+                }
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    note.reminderAlarmTimeMillis,
+                    pendingIntent
+                )
+            }
             Log.d(TAG, "setReminder: set successful")
         }
     }
