@@ -1,6 +1,7 @@
 package ua.andrii.andrushchenko.justnotes.ui.note.addeditnote
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -17,7 +18,6 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.databinding.FragmentAddEditNoteBinding
 import ua.andrii.andrushchenko.justnotes.ui.base.BaseFragment
@@ -25,7 +25,7 @@ import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_REQUEST
 import ua.andrii.andrushchenko.justnotes.utils.Constants.ADD_EDIT_NOTE_RESULT
 import ua.andrii.andrushchenko.justnotes.utils.ReminderHelper
 import ua.andrii.andrushchenko.justnotes.utils.setOnTextChangedListener
-import java.util.*
+import java.util.Calendar
 
 @AndroidEntryPoint
 class AddEditNoteFragment :
@@ -167,9 +167,11 @@ class AddEditNoteFragment :
         materialDatePicker.addOnPositiveButtonClickListener { selection ->
             val selectedDateTime = Calendar.getInstance()
             selectedDateTime.timeInMillis = selection
-            viewModel.savedYear = selectedDateTime[Calendar.YEAR]
-            viewModel.savedMonth = selectedDateTime[Calendar.MONTH]
-            viewModel.savedDay = selectedDateTime[Calendar.DAY_OF_MONTH]
+            viewModel.setDate(
+                selectedDateTime[Calendar.YEAR],
+                selectedDateTime[Calendar.MONTH],
+                selectedDateTime[Calendar.DAY_OF_MONTH]
+            )
             pickTime()
         }
         materialDatePicker.show(childFragmentManager, MaterialDatePicker::class.java.canonicalName)
@@ -179,14 +181,17 @@ class AddEditNoteFragment :
         val materialTimePicker = MaterialTimePicker.Builder().apply {
             val calendar = Calendar.getInstance()
             setTitleText(getString(R.string.select_time))
-            setTimeFormat(TimeFormat.CLOCK_24H)
+            val timeFormat = if (DateFormat.is24HourFormat(context)) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+            setTimeFormat(timeFormat)
             setHour(calendar[Calendar.HOUR])
             setMinute(calendar[Calendar.MINUTE])
         }.build()
 
         materialTimePicker.addOnPositiveButtonClickListener {
-            viewModel.savedHour = materialTimePicker.hour
-            viewModel.savedMinute = materialTimePicker.minute
+            viewModel.setTime(
+                materialTimePicker.hour,
+                materialTimePicker.minute
+            )
             viewModel.saveReminderDateTimeMillis()
         }
 

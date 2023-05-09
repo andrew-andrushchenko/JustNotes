@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ua.andrii.andrushchenko.justnotes.R
 import ua.andrii.andrushchenko.justnotes.data.note.NoteDao
@@ -111,33 +113,62 @@ class AddEditNoteViewModel @Inject constructor(
         addEditNoteEventChannel.send(AddEditNoteEvent.ShowInvalidInputMessage(msg))
     }
 
-    var savedYear = 0
-    var savedMonth = 0
-    var savedDay = 0
-    var savedHour = 0
-    var savedMinute = 0
+    private val _reminderDateTime: MutableStateFlow<ReminderDateTime> = MutableStateFlow(ReminderDateTime())
+
+    fun setDate(
+        year: Int,
+        month: Int,
+        day: Int
+    ) {
+        _reminderDateTime.update {
+            it.copy(
+                savedYear = year,
+                savedMonth = month,
+                savedDay = day
+            )
+        }
+    }
+
+    fun setTime(
+        hour: Int,
+        minute: Int
+    ) {
+        _reminderDateTime.update {
+            it.copy(
+                savedHour = hour,
+                savedMinute = minute
+            )
+        }
+    }
 
     fun setReminderDateTimeByPeriod(reminderPeriod: ReminderHelper.ReminderPeriod) =
         with(Calendar.getInstance()) {
-            savedYear = this[Calendar.YEAR]
-            savedMonth = this[Calendar.MONTH]
-            savedDay = this[Calendar.DAY_OF_MONTH]
-            savedHour = when (reminderPeriod) {
+            setDate(
+                year = this[Calendar.YEAR],
+                month = this[Calendar.MONTH],
+                day = this[Calendar.DAY_OF_MONTH]
+            )
+
+            val savedHour = when (reminderPeriod) {
                 ReminderHelper.ReminderPeriod.MORNING -> 9
                 ReminderHelper.ReminderPeriod.AFTERNOON -> 13
                 ReminderHelper.ReminderPeriod.EVENING -> 18
                 ReminderHelper.ReminderPeriod.LATE_EVENING -> 21
             }
-            savedMinute = 0
+
+            setTime(
+                hour = savedHour,
+                minute = 0
+            )
         }
 
     fun saveReminderDateTimeMillis() {
         Calendar.getInstance().apply {
-            this[Calendar.YEAR] = savedYear
-            this[Calendar.MONTH] = savedMonth
-            this[Calendar.DAY_OF_MONTH] = savedDay
-            this[Calendar.HOUR] = savedHour
-            this[Calendar.MINUTE] = savedMinute
+            this[Calendar.YEAR] = _reminderDateTime.value.savedYear
+            this[Calendar.MONTH] = _reminderDateTime.value.savedMonth
+            this[Calendar.DAY_OF_MONTH] = _reminderDateTime.value.savedDay
+            this[Calendar.HOUR] = _reminderDateTime.value.savedHour
+            this[Calendar.MINUTE] = _reminderDateTime.value.savedMinute
             this[Calendar.SECOND] = 0
         }.let { calendar ->
             noteReminderAlarmTimeMillis = calendar.timeInMillis
@@ -170,3 +201,11 @@ class AddEditNoteViewModel @Inject constructor(
         private const val TAG = "AddEditNoteViewModel"
     }
 }
+
+data class ReminderDateTime(
+    val savedYear: Int = 0,
+    val savedMonth: Int = 0,
+    val savedDay: Int = 0,
+    val savedHour: Int = 0,
+    val savedMinute: Int = 0
+)
